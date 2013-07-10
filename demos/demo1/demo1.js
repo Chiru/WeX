@@ -64,6 +64,63 @@ function ambientLightSupport()
     }
 }
 
+function proximitySupport()
+{
+    if(window.DeviceProximityEvent)
+    {
+        log("DeviceProximity is supported");
+        window.addEventListener("deviceproximity", proximityUpdate, false);
+    }
+    else
+    {
+        log("DeviceProximity is not supported");
+        document.getElementById("proximity").innerHTML = "Not supported";
+    }
+}
+
+function temperatureSupport()
+{
+
+    if(window.AmbientTemperatureEvent)
+    {
+        log("AmbientTemperatureEvent is supported");
+        window.addEventListener("ambienttemperature", temperatureUpdate, false);
+    }
+    else
+    {
+        log("DeviceTemperatureEvent is not supported");
+        document.getElementById("temperature").innerHTML = "Not supported";
+    }
+}
+
+function atmosphericPressureSupport()
+{
+    if(window.AtmPressureEvent)
+    {
+        log("AtmPressureEvent is supported");
+        window.addEventListener("atmpressure", atmosphericPressureUpdate, false);
+    }
+    else
+    {
+        log("AtmPressureEvent is not supported");
+        document.getElementById("atmPressure").innerHTML = "Not supported";
+    }
+}
+
+function ambientHumiditySupport()
+{
+    if(window.AmbientHumidityEvent)
+    {
+        log("AmbientHumidityEvent is supported");
+        window.addEventListener("ambienthumidity", ambientHumidityUpdate, false);
+    }
+    else
+    {
+        log("AmbientHumidityEvent is not supported");
+        document.getElementById("ambientHumidity").innerHTML = "Not supported";
+    }
+}
+
 function positionUpdate(position)
 {
     var altitude = position.coords.altitude;
@@ -100,8 +157,35 @@ function ambientLightUpdate(eventData)
     document.getElementById("ambientLight").innerHTML = ambientLightStr;
 }
 
+function proximityUpdate(eventData)
+{
+    proximityStr = "[" + eventData.value + "]";
+    document.getElementById("proximity").innerHTML = proximityStr;
+}
+
+function temperatureUpdate(eventData)
+{
+    temperatureStr = "[" + eventData.c + "]";
+    document.getElementById("temperature").innerHTML = temperatureStr;
+}
+
+function atmosphericPressureUpdate(eventData)
+{
+    atmosphericPressureStr = "[" + eventData.value + "]";
+    document.getElementById("atmPressure").innerHTML = atmosphericPressureStr;
+}
+
+function ambientHumidityUpdate(eventData)
+{
+    ambientHumidityStr = "[" + eventData.value + "]";
+    document.getElementById("ambientHumidity").innerHTML = atmosphericPressureStr;
+}
+
 geoLocationSupport();
 deviceOrientationEventSupport();
 deviceMotionEventSupport();
 ambientLightSupport();
-
+proximitySupport();
+temperatureSupport();
+atmosphericPressureSupport();
+ambientHumiditySupport();

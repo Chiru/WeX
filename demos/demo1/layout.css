@@ -91,14 +91,7 @@ div#right {
     bottom: 20px;
     top: 20px;
     width: 46%;
-    -moz-box-sizing: border-box;
-    -webkit-box-sizing: border-box;
-    -box-sizing: border-box;
-
-    text-align: left;
-    font-family: Charcoal, sans-serif;
-    font-size: 1em;
-    font-weight:bold;
+    font: 1.0em Arial, Helvetica, sans-serif;
     color: #F5FFFA;
     border: solid 1px #000;
     /*background-color: #9F9F9F;*/
@@ -130,12 +123,12 @@ div#log {
     -box-sizing: border-box;
     font: 1.0em Arial, Helvetica, sans-serif;
     text-align: left;
-    height:50%;
+    height:100%;
     border-top: 1px solid black;
-    max-height:45%;
+    max-height:100%;
     width: 100%;
     overflow-y:auto;
-    padding-bottom:-10px;
+    /*padding-bottom:-10px;*/
     /*background-color: #999999;*/
 }
 
