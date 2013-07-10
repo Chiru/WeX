@@ -77,10 +77,8 @@ div#left {
     -webkit-box-sizing: border-box;
     -box-sizing: border-box;
 
-    text-align: center;
-    font-family: Charcoal, sans-serif;
-    font-size: 2em;
-    font-weight:bold;
+    text-align: left;
+    font: 1.0em Arial, Helvetica, sans-serif;
     color: #F5FFFA;
     border: solid 1px #000;
     /*background-color: #9F9F9F;*/
@@ -97,9 +95,9 @@ div#right {
     -webkit-box-sizing: border-box;
     -box-sizing: border-box;
 
-    text-align: center;
+    text-align: left;
     font-family: Charcoal, sans-serif;
-    font-size: 2em;
+    font-size: 1em;
     font-weight:bold;
     color: #F5FFFA;
     border: solid 1px #000;
@@ -119,14 +117,26 @@ div#footer {
     z-index: 150;
 }
 
-div#footer span{
-    text-align: center;
-    font-family: Charcoal, sans-serif;
-    font-size: 2em;
-    font-weight:bold;
-    color: #F5FFFA;
-    display: table-cell;
-    vertical-align: middle;
+div#footer #buttons {
+    margin-top:25px;
+    text-align:center;
+}
+
+
+div#log {
+    padding: 5px 0 5px 0;
+    -moz-box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+    -box-sizing: border-box;
+    font: 1.0em Arial, Helvetica, sans-serif;
+    text-align: left;
+    height:50%;
+    border-top: 1px solid black;
+    max-height:45%;
+    width: 100%;
+    overflow-y:auto;
+    padding-bottom:-10px;
+    /*background-color: #999999;*/
 }
 
 button {
