@@ -22,7 +22,8 @@
 
         var mapOptions = {
             zoom: 15,
-            mapTypeId: google.maps.MapTypeId.ROADMAP
+            mapTypeId: google.maps.MapTypeId.ROADMAP,
+            center: new google.maps.LatLng(65.0610432, 25.468170099999952) //Initial location Oulu University
         };
         map = new google.maps.Map( document.getElementById( 'map-canvas' ),
             mapOptions );
@@ -84,21 +85,19 @@
             position.coords.longitude );
 
         updateMarker( pos, homeMarker );
-
+        console.log(pos)
         map.setCenter( pos );
 
         wex.Util.log( "Location found." );
     }
 
     function handleNoGeolocation( errorFlag ) {
-        var content, options, infoWindow;
-
         if ( errorFlag ) {
             alert( 'Error: The Geolocation service failed.' );
         } else {
             alert( 'Error: Your browser doesn\'t support geolocation.' );
         }
-        map.setCenter( options.position );
+        map.setCenter(  new google.maps.LatLng(65.0610432, 25.468170099999952) );
     }
 
     function codeAddress() {
