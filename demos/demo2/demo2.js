@@ -108,7 +108,7 @@
             var h = video.videoHeight;
             canvas.width = w;
             canvas.height = h;
-            ctx2D.drawImage( video, 0, 0, w, h );
+            ctx2D.drawImage( video, 0, 0);
             snapshot.src = canvas.toDataURL( 'image/webp' );
             snapshot.style.visibility = "visible";
         }
