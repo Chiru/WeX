@@ -62,8 +62,16 @@
     }
 
     function updateMarker( pos, marker ) {
+
+        var markerOptions = 
+        {
+            //zIndex: 200,
+            optimized: false
+        };
+
         marker.setMap( map );
         marker.setPosition( pos );
+        marker.setOptions(markerOptions);
     }
 
 

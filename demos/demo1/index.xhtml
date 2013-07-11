@@ -12,8 +12,8 @@
 
 <div id="container">
     <div id="top">
-        <h1> F1 </h1>
-        <h2> Description </h2>
+        <h1> Demo1 </h1>
+        <h2> Sensor data </h2>
     </div>
 
     <div id="loadingScreen">
@@ -22,24 +22,57 @@
     </div>
 
     <div id="content-wrapper">
-        <div id="left">F2</div>
-        <div id="right">F3</div>
+        <div id="left">
+            <table>
+                <tr>
+                    <td>GPS:</td>
+                    <td id="GPS"></td>
+                </tr>
+                <tr>
+                    <td>Orientation:</td>
+                    <td id="orientation"></td>
+                </tr>
+                <tr>
+                    <td>Acceleration:</td>
+                    <td id="acceleration"></td>
+                </tr>
+                <tr>
+                    <td>AccelerationIncludingGravity:</td>
+                    <td id="accelerationIncludingGravity"></td>
+                </tr>
+                <tr>
+                    <td>Ambient light:</td>
+                    <td id="ambientLight"></td>
+                </tr>
+                <tr>
+                    <td>Proximity:</td>
+                    <td id="proximity"></td>
+                </tr>
+                <tr>
+                    <td>Temperature:</td>
+                    <td id="temperature"></td>
+                </tr>
+                <tr>
+                    <td>Atmospheric Pressure:</td>
+                    <td id="atmPressure"></td>
+                </tr>
+                <tr>
+                    <td>Ambient Humidity:</td>
+                    <td id="ambientHumidity"></td>
+                </tr>
+            </table>
+        </div>
+        <div id="right">
+            <div id="log"></div>
+        </div>
     </div>
     <div id="footer">
-       <span> <button id="button1">Button 1</button> </span>
-       <span> F4 </span>
-       <span> <button id="button2">Button 2</button> </span>
     </div>
 </div>
 
 
-<!-- Libs etc. deps -->
-<script type="text/javascript" src="../../deps/js/xml3d.js"></script>
-
-<!-- Demo specific code
-<script type="text/javascript" src="js/demo1.js"></script>
-
--->
+<script type="text/javascript" src="../../deps/js/Util.js"></script>
+<script type="text/javascript" src="demo1.js"></script>
 
 </body>
 </html>
