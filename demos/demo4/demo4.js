@@ -64,7 +64,7 @@
 
         var markerOptions = 
         {
-            zIndex: 200,
+            //zIndex: 200,
             optimized: false
         };
 

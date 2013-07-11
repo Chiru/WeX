@@ -38,7 +38,6 @@ div#top {
     border-bottom: solid 1px #000;
     margin:0;
     background-color: #808080;
-    z-index: 150;
 }
 
 div#top h1 {
@@ -95,7 +94,6 @@ div#right {
     color: #F5FFFA;
     border: solid 1px #000;
     background-color: #9F9F9F;
-    z-index: 150;
 }
 
 
@@ -115,7 +113,6 @@ div#footer {
     /* display: table; to center the header text */
     border-top: solid 1px #000;
     background-color: #808080;
-    z-index: 150;
 }
 
 div#footer #buttons {
