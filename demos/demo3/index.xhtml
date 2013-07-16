@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+    <!-- Style -->
+    <link rel="stylesheet" type="text/css" media="all" href="layout.css" />
+  
+    <title>Demo 3</title>
+</head>
+
+<body>
+
+<div id="container">
+    <div id="top">
+        <h1> Demo 3 </h1>
+        <h2> Capture and record microphone </h2>
+    </div>
+
+    <div id="loadingScreen">
+        Loading Demo... <br />
+        <span id="progress"></span>
+    </div>
+
+    <div id="content-wrapper">
+        <div id="left">
+            <canvas id='analyzerCanvas' style="width:100%; height: 100%;"></canvas>
+        </div>
+        <div id="right">
+            <div id="log"></div>
+        </div>
+    </div>
+    <div id="footer">
+       <span> <button id="button1">Start recording</button> </span>
+       <span> <button id="button2">Save clip</button> </span>
+       <span> <button id="button3">Toggle analyzer</button> </span>
+       <span> <button id="button4">Unmute</button> </span>
+    </div>
+</div>
+
+
+<!-- Libs etc. deps -->
+<!-- <script type="text/javascript" src="../../deps/js/xml3d.js"></script> -->
+<script type="text/javascript" src="../../deps/js/Util.js"></script>
+
+<!-- Demo specific code -->
+<script type="text/javascript" src="recorderWorker.js"></script>
+<script type="text/javascript" src="recorder.js"></script>
+<script type="text/javascript" src="demo3.js"></script>
+
+<!--
+<script type="text/javascript" src="js/audio.js"></script>
+<script type="text/javascript" src="js/recorder.js"></script>
+-->
+
+</body>
+</html>
