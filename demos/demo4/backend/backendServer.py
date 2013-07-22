@@ -46,6 +46,10 @@ def parseXmlDocument(document):
         if label is not None:
             poi["name"] = label.find("value").text
 
+        info = poiElement.find("category")
+        if info is not None:
+            poi["info"] = info.find("value").text
+
         location = poiElement.find("location")
         if location is not None:
             poiLocation = dict()
