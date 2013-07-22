@@ -1,3 +1,6 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+
 import sys
 import httplib2
 import json
@@ -25,8 +28,7 @@ def doPoiSearch(search):
 
 def parseXmlDocument(document):
     etree = ET.fromstring(document)
-    data = dict()
-    i = 0
+    data = []
 
     if etree.tag == "Error":
         print "Error in search"
@@ -35,7 +37,7 @@ def parseXmlDocument(document):
         message["query"] = etree.find("query").text
 
         data["error"] = message
-        return json.dumps(str(data))
+        return json.dumps(str(data).replace('\'', '"'))
 
     for poiElement in etree.findall("poi"):
         poi = dict()
@@ -49,12 +51,12 @@ def parseXmlDocument(document):
             poiLocation = dict()
             poiLocation["lat"], poiLocation["lon"] = location.find("point").find("Point").find("posList").text.split()
             poi["location"] = poiLocation
-        
-        print poi
-        data["poi_" + str(i)] = poi
-        i += 1
+ 
+        #print poi
 
-    return json.dumps(str(data))
+        data.append(poi)
+
+    return '{"pois":' + str(data).replace('\'', '"') + '}'
 
 
 class MessageBasedHashServerProtocol(WebSocketServerProtocol):
