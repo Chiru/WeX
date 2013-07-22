@@ -1,5 +1,9 @@
 (function ( namespace ) {
-    var map, geocoder, homeMarker, positionMarker, poiWindow, poiStorage = {}, markers = [];
+    var map, geocoder, homeMarker, homeLocation = {}, positionMarker, poiWindow, poiStorage = {}, markers = [],
+        webSocket = null,
+        BACKEND_ADDRESS = "ws://localhost:9000";
+
+        window.WebSocket = (window.WebSocket || window.MozWebSocket);
 
     function loadScript() {
         var script = document.createElement( "script" );
@@ -17,6 +21,7 @@
         document.querySelector( '#button1' ).onclick = locate;
         document.querySelector( '#button2' ).onclick = codeAddress;
         document.querySelector( '#button4' ).onclick = updateMap;
+        document.querySelector( '#button5' ).onclick = searchPOIs;
 
         geocoder = new google.maps.Geocoder();
 
@@ -49,13 +54,55 @@
 
         });
 
-
         // HTML5 Geolocation
         locate();
 
+        // Open connection to backend server
+        connectBackend();
+
         // Adding example POIs to the map, please remove after implementing POI back-end.
-        parsePoiData();
+        // parsePoiData();
     };
+
+    function connectBackend() {
+        try {
+            if (window.WebSocket !== undefined) {
+                webSocket = new window.WebSocket( BACKEND_ADDRESS );
+            }
+            else {
+                alert( "This Browser does not support WebSockets." );
+                return;
+            }
+        } catch (e) {
+            console.error( 'ERROR:', e.stack );
+            return;
+        }
+
+        webSocket.onopen = function () {
+            console.log("WebSocket opened");
+        }.bind( this );
+
+        webSocket.onmessage = function ( msg ) {
+            //console.log("Got msg: " + msg.data);
+            parsePoiData(msg.data);
+        }.bind( this );
+
+        webSocket.onclose = function () {
+            setTimeout (function () { connectBackend() }, 5000)
+        }
+
+    }
+
+    function searchPOIs() {
+        wex.Util.log("Doing search from OpenPOIS database, this can take several minutes.");
+
+        webSocket.send("lat=" + homeLocation.coords.latitude + "&lon=" + homeLocation.coords.longitude + "&maxfeatures=9&format=application/xml");
+        //webSocket.send("lat=65.011394&lon=25.465515&maxfeatures=9&format=application/xml");
+
+        // this will return error message (No POIs found)
+        //webSocket.send("lat=42.349433712876&lon=-71.040894451933&maxfeatures=9&format=application/xml");
+
+    }
 
     function storeMarker(marker){
 
@@ -89,8 +136,10 @@
     }
 
     function handleFoundLocation( position ) {
-        var pos = new google.maps.LatLng( position.coords.latitude,
-            position.coords.longitude );
+        homeLocation.coords = position.coords;
+
+        var pos = new google.maps.LatLng( homeLocation.coords.latitude,
+            homeLocation.coords.longitude );
 
         updateMarker( pos, homeMarker );
         console.log(pos)
@@ -132,22 +181,28 @@
     }
 
     function parsePoiData( data ) {
-        var exampleData = {
-            "65.0620455,25.46816549999994": {"name": "POI1", "info": "Point of interest number 1.", "icon":""},
-            "65.0620455,25.467165499999965": {"name": "POI2", "info": "Point of interest number 2.", "icon":""},
-            "65.0620455,25.469165499999917": {"name": "POI3", "info": "Point of interest number 3.", "icon":""},
-            "65.06004549999999,25.46816549999994": {"name": "POI4", "info": "Point of interest number 4.", "icon":""}
-        };
+        // var exampleData = {
+        //     "65.0620455,25.46816549999994": {"name": "POI1", "info": "Point of interest number 1.", "icon":""},
+        //     "65.0620455,25.467165499999965": {"name": "POI2", "info": "Point of interest number 2.", "icon":""},
+        //     "65.0620455,25.469165499999917": {"name": "POI3", "info": "Point of interest number 3.", "icon":""},
+        //     "65.06004549999999,25.46816549999994": {"name": "POI4", "info": "Point of interest number 4.", "icon":""}
+        // };
 
-        var poiData, coord, coords, pos;
+        var jsonData, poiData, coord, coords, pos, i, length;
 
         wex.Util.log("Parsing POI data...");
+        console.log(data)
 
-        for(coord in exampleData){
-            poiData = exampleData[coord];
-            coords = coord.split(',');
-            pos = new google.maps.LatLng( coords[0], coords[1] );
-            addPOIToMap(pos, poiData);
+        jsonData = JSON.parse(data)
+        console.log(jsonData);
+        length = jsonData.pois.length
+
+        for (i = 0; i < length; i+=1) {
+            
+            poiData = jsonData['pois'][i];
+            console.log(poiData);
+            pos = new google.maps.LatLng( poiData['location']['lat'], poiData['location']['lon'] );
+            addPOIToMap(pos, poiData)
         }
 
         wex.Util.log("Ready.");
@@ -204,8 +259,7 @@
 
 
     function updateMap() {
-        fetchPoiData();
-
+        fetchPoiData();        
     }
 
 
