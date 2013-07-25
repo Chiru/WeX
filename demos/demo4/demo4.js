@@ -1,6 +1,7 @@
 (function ( namespace ) {
-    var map, geocoder, homeMarker, homeLocation = {}, positionMarker, poiWindow, poiStorage = {}, markers = [],
+    var map, geocoder, homeMarker, positionMarker, poiWindow, poiStorage = {}, markers = [],
         webSocket = null,
+        centerChangedTimeout,
         BACKEND_ADDRESS = "ws://localhost:9000";
 
         window.WebSocket = (window.WebSocket || window.MozWebSocket);
@@ -21,7 +22,7 @@
         document.querySelector( '#button1' ).onclick = locate;
         document.querySelector( '#button2' ).onclick = codeAddress;
         document.querySelector( '#button4' ).onclick = updateMap;
-        document.querySelector( '#button5' ).onclick = searchPOIs;
+        //document.querySelector( '#button5' ).onclick = searchPOIs;
 
         geocoder = new google.maps.Geocoder();
 
@@ -51,7 +52,12 @@
             var zoomLevel = map.getZoom();
 
             console.log("Zoom level: " + zoomLevel);
+        });
 
+        google.maps.event.addListener(map, 'center_changed', function() {
+            // Initiate new search after timeout
+            clearTimeout(centerChangedTimeout);
+            centerChangedTimeout = window.setTimeout(searchPOIs, 2000);
         });
 
         // HTML5 Geolocation
@@ -95,9 +101,9 @@
 
     function searchPOIs() {
         wex.Util.log("Doing search from OpenPOIS database, this can take several minutes.");
+        wex.Util.log("Map center: lat=" + map.getCenter()['jb'] + " lon=" + map.getCenter()['kb']);
 
-        webSocket.send("lat=" + homeLocation.coords.latitude + "&lon=" + homeLocation.coords.longitude + "&maxfeatures=9&format=application/xml");
-        //webSocket.send("lat=65.011394&lon=25.465515&maxfeatures=9&format=application/xml");
+        webSocket.send("lat=" + map.getCenter()['jb'] + "&lon=" + map.getCenter()['kb'] + "&maxfeatures=9&format=application/xml");
 
         // this will return error message (No POIs found)
         //webSocket.send("lat=42.349433712876&lon=-71.040894451933&maxfeatures=9&format=application/xml");
@@ -136,13 +142,11 @@
     }
 
     function handleFoundLocation( position ) {
-        homeLocation.coords = position.coords;
-
-        var pos = new google.maps.LatLng( homeLocation.coords.latitude,
-            homeLocation.coords.longitude );
+        var pos = new google.maps.LatLng( position.coords.latitude,
+            position.coords.longitude );
 
         updateMarker( pos, homeMarker );
-        console.log(pos)
+        // console.log(pos)
         map.setCenter( pos );
 
         wex.Util.log( "Location found." );
