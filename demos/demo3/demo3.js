@@ -7,6 +7,8 @@
 
     window.AudioContext = (window.AudioContext || 
         window.webkitAudioContext);
+
+
     
     window.requestAnimationFrame = (window.requestAnimationFrame || 
         window.mozRequestAnimationFrame || 
@@ -38,6 +40,11 @@
         canvasHeight;
 
 
+    if(!window.AudioContext) {
+        log("ERROR: AudioContext not available/or activated on your browser!");
+        return;
+    }
+
     function hasGetUserMedia() {
         return !!(navigator.getUserMedia);
     }
@@ -61,9 +68,22 @@
         log("Got userMedia");
         
         audioContext = new AudioContext();
-        inputPoint = audioContext.createGainNode();
+        audioContext.createGain = audioContext.createGain || audioContext.createGainNode; //createGainNode is deprecated
+
+        if(!audioContext.createGain) {
+            log("Error: WebAudio: GainNode not supported.");
+            return;
+        }
+
+        inputPoint = audioContext.createGain();
 
         // Create an AudioNode from the stream.
+        if(!audioContext.createMediaStreamSource){
+            log("Error: WebAudio: createMediaStreamSource not supported. " +
+                "If using FireFox follow the development <a href='https://bugzilla.mozilla.org/show_bug.cgi?id=856361'>here</a>");
+            return;
+        }
+
         audioStream = audioContext.createMediaStreamSource( stream );
         audioStream.connect( inputPoint );
 
@@ -75,7 +95,7 @@
             button1.onclick = toggleRecording;
         }
 
-        gainNode = audioContext.createGainNode();
+        gainNode = audioContext.createGain();
         gainNode.gain.value = 0.0;
 
         inputPoint.connect( gainNode );
