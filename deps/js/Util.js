@@ -25,9 +25,9 @@
                     el.innerHTML +=
                         "&#8195;[" + new Date().toTimeString().replace( /.*(\d{2}:\d{2}:\d{2}).*/, "$1" ) + "] " + str + "<br />";
                     el.scrollTop = el.scrollHeight;
-                } else {
-                    console.log( msg );
                 }
+
+                console.log( msg );
             },
 
 
