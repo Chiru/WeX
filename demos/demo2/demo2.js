@@ -18,6 +18,7 @@
         metaDataLoaded = false,
         videoLoaded = false,
         localVideoStream = null;
+        backEndServer = "http://127.0.0.1:8088";
 
 
     function hasGetUserMedia() {
@@ -109,11 +110,42 @@
             canvas.width = w;
             canvas.height = h;
             ctx2D.drawImage( video, 0, 0);
-            snapshot.src = canvas.toDataURL( 'image/webp' );
+            //snapshot.src = canvas.toDataURL( 'image/webp');
+            snapshot.src = canvas.toDataURL( 'image/jpeg');
             snapshot.style.visibility = "visible";
+            uploadImageToServer(backEndServer, snapshot);
         }
     }
 
+    function uploadImageToServer(serverUrl, imageData){
+
+        var imagefile = imageData.src;
+
+        log('trying to send image to: ' + serverUrl + "...");
+
+        var xhr = new XMLHttpRequest();
+        xhr.open("POST", serverUrl, true);
+        //xhr.setRequestHeader("Content-Type", "image/jpeg")
+        xhr.send(imagefile);
+
+        xhr.onreadystatechange = function () {
+
+            if(xhr.readyState === 4){
+                if(xhr.status  === 200){
+                    log('"send succeeded."'); 
+                    log(serverUrl + ": " + xhr.responseText);
+                }
+                else if (request.status === 404){
+                    log('send failed.'); 
+                    log(serverUrl + ": " + xhr.responseText);
+                }
+            }
+        }
+
+        xhr.onerror = function (e) {
+            log("sending image failed");
+        };
+    }
 
     if ( button1 ) {
         button1.onclick = toggleStart;
