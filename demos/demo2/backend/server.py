@@ -42,6 +42,10 @@ def saveImage(filename, imageStream, imageFormat):
             i += 1
 
         im = im.convert('1') #convert image to black and white.
+
+        if not os.path.exists(save_path):
+            os.makedirs(save_path)
+
         im.save(completeName, format = imageFormat)
         tempImg.close()
         return'Image received. Image saved'
