@@ -8,7 +8,9 @@
             filename = null;
 
         this.context = source.context;
-        this.node = this.context.createJavaScriptNode(bufferLen, 2, 2);
+        this.context.createScriptProcessor = this.context.createScriptProcessor ||
+            this.context.createJavaScriptNode; //CreateJavaScriptNode is deprecated;
+        this.node = this.context.createScriptProcessor(bufferLen, 2, 2);
 
         worker = new Worker('recorderWorker.js');
         worker.postMessage({'cmd': 'init', 'sampleRate': this.context.sampleRate});
@@ -24,19 +26,19 @@
                 'buffer':[e.inputBuffer.getChannelData(0),
                         e.inputBuffer.getChannelData(1)]
             });
-        }
+        };
 
         this.record = function() {
             recording = true;
-        }
+        };
 
         this.stop = function() {
             recording = false;
-        }
+        };
 
         this.clear = function() {
             worker.postMessage( {'cmd':'clear'} );
-        }
+        };
 
         this.exportWAV = function( name ) {
             var type = 'audio/wav';
@@ -50,7 +52,7 @@
 
             // wex.Util.log("Exporting audio, callback: " + currentCallback + "type: " + type);
             worker.postMessage( {'cmd':'exportWAV', 'type':type} );
-        }
+        };
 
         this.download = function( blob ) {
             //wex.Util.log("forceDownloading blob as file: " + filename);
@@ -62,10 +64,10 @@
 
             link.href = url;
             link.download = filename || 'output.wav';
-            click = document.createEvent("Event");
+            click = document.createEvent("MouseEvents");
             click.initEvent("click", true, true);
             link.dispatchEvent(click);
-        }
+        };
 
         worker.addEventListener('message', function (e) {
             currentCallback(e.data);
