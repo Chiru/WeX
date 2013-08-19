@@ -41,6 +41,7 @@ def saveImage(filename, imageStream, imageFormat):
             completeName = completeNameTmp + '(' + str(i) +')'
             i += 1
 
+        im = im.convert('1') #convert image to black and white.
         im.save(completeName, format = imageFormat)
         tempImg.close()
         return'Image received. Image saved'
