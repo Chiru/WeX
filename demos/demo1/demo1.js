@@ -5,6 +5,7 @@ function geoLocationSupport()
     if (navigator.geolocation) 
     {
         log("Geolocation is supported");
+        document.getElementById("GPS").innerHTML = "No sensor available"
         navigator.geolocation.getCurrentPosition(positionUpdate)
     }
     else 
@@ -19,6 +20,7 @@ function deviceOrientationEventSupport()
     if (window.DeviceOrientationEvent) 
     {
         log("DeviceOrientationEvent is supported");
+        document.getElementById("orientation").innerHTML = "No sensor available"
         window.addEventListener("deviceorientation",orientationUpdate , false);
         
     }
@@ -39,6 +41,8 @@ function deviceMotionEventSupport()
     if (window.DeviceMotionEvent) 
     {
         log("DeviceMotionEvent is supported");
+        document.getElementById("acceleration").innerHTML = "No sensor available"
+        document.getElementById("accelerationIncludingGravity").innerHTML = "No sensor available"
         window.addEventListener("devicemotion", accelerometerUpdate, false);
     }
     else 
@@ -55,6 +59,7 @@ function ambientLightSupport()
     if(window.DeviceLightEvent)
     {
         log("DeviceLightEvent is supported");
+        document.getElementById("ambientLight").innerHTML = "No sensor available";
         window.addEventListener("devicelight", ambientLightUpdate, false);
     }
     else
@@ -69,6 +74,7 @@ function proximitySupport()
     if(window.DeviceProximityEvent)
     {
         log("DeviceProximity is supported");
+        document.getElementById("proximity").innerHTML = "No sensor available";
         window.addEventListener("deviceproximity", proximityUpdate, false);
     }
     else
@@ -84,6 +90,7 @@ function temperatureSupport()
     if(window.AmbientTemperatureEvent)
     {
         log("AmbientTemperatureEvent is supported");
+        document.getElementById("temperature").innerHTML = "No sensor available";
         window.addEventListener("ambienttemperature", temperatureUpdate, false);
     }
     else
@@ -98,6 +105,7 @@ function atmosphericPressureSupport()
     if(window.AtmPressureEvent)
     {
         log("AtmPressureEvent is supported");
+        document.getElementById("atmPressure").innerHTML = "No sensor available";
         window.addEventListener("atmpressure", atmosphericPressureUpdate, false);
     }
     else
@@ -112,6 +120,7 @@ function ambientHumiditySupport()
     if(window.AmbientHumidityEvent)
     {
         log("AmbientHumidityEvent is supported");
+        document.getElementById("ambientHumidity").innerHTML = "No sensor available";
         window.addEventListener("ambienthumidity", ambientHumidityUpdate, false);
     }
     else
