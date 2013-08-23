@@ -94,16 +94,16 @@
         }.bind( this );
 
         webSocket.onclose = function () {
-            setTimeout (function () { connectBackend() }, 5000)
+            setTimeout (function () { connectBackend }, 5000)
         }
 
     }
 
     function searchPOIs() {
         wex.Util.log("Doing search from OpenPOIS database, this can take several minutes.");
-        wex.Util.log("Map center: lat=" + map.getCenter()['jb'] + " lon=" + map.getCenter()['kb']);
+        wex.Util.log("Map center: lat=" + map.getCenter().lat() + " lon=" + map.getCenter().lng());
 
-        webSocket.send("lat=" + map.getCenter()['jb'] + "&lon=" + map.getCenter()['kb'] + "&maxfeatures=9&format=application/xml");
+        webSocket.send("lat=" + map.getCenter().lat() + "&lon=" + map.getCenter().lng() + "&radius=500&format=application/xml");
 
         // this will return error message (No POIs found)
         //webSocket.send("lat=42.349433712876&lon=-71.040894451933&maxfeatures=9&format=application/xml");
