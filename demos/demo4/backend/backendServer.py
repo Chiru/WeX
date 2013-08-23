@@ -48,7 +48,8 @@ def parseXmlDocument(document):
 
         info = poiElement.find("category")
         if info is not None:
-            poi["info"] = info.find("value").text
+            # Hack to remove unneeded ' characters from result string, since dataformat in OpenPOI's database have changed after original code was written
+            poi["info"] = info.find("value").text.replace('\'','')
 
         location = poiElement.find("location")
         if location is not None:
