@@ -11,7 +11,7 @@
                 <polygon>
                     <center>0.1 -0.3 0.0</center>
                     <vertices>
-                        <vertex>0.1, -0.3, 0.0</vertex>
+                        <vertex>0.1 -0.3 0.0</vertex>
                         <vertex>0.1 5.0 0.0</vertex>
                         <vertex>3.0 6.0 0.0</vertex>
                     </vertices>
@@ -42,7 +42,7 @@
                 <lat>25.4667</lat>
                 <elevation>5.0</elevation>
                 <transformation>
-                    <rotation>1.0, 0.0, 0.0, 0.0</rotation>
+                    <rotation>1.0 0.0 0.0 0.0</rotation>
                 </transformation>
             </wsg84>
             <soft>
