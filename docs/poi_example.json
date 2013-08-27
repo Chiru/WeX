@@ -1,0 +1,86 @@
+{
+    "UUID1": {
+        "source" : "Url to main data source",
+
+        "structure": {
+            "shape": [
+                {
+                    "type":"point",
+                    "center": [0.1, -0.3, 0.0]
+                }
+            ],
+            "bounds": [
+                {
+                    "type":"sphere",
+                    "vertices":[[0.1,-0.3,0.0], [0.1,-0.5,0.0], [0.8,-0.7,0.0]]
+                }
+            ]
+
+        },
+        "features": [
+            {
+                "type":"qrcode",
+                "code": ["0111", "00001001", "0100", "00000101", "10100001",
+                         "10100010", "10100011", "10100100", "10100101"],
+                "bitfield": "101",
+                "transformation":{"translation":[3.2, 3.2, 0.0], "rotation":[0.707, 0.0, 0.707, 0.0]}
+            }
+
+        ],
+        "locations": [
+            {
+                "type" :"wsg84",
+                "lon": [123, 456],
+                "lat": [111, 222],
+                "elevation": 5.0,
+                "transformation":{"rotation": [1.0, 0.0, 0.0, 0.0]}
+            },
+            {
+                "type" :"soft",
+                "startPosition": [2.0, 0.0, 0.0],
+                "description": "Face yourself to Mona Lisa. Turn left, walk 5 meters, look right."
+            }
+
+        ],
+        "contents": [
+            {"type": "icon", "resource":"data:image/x-icon;base64,AAABAAEAEBAAAAAAAABoBAA..."},
+            {"type": "url", "name":"website1", "href":"http://someurl.com"},
+            {"type": "group", "contentType":"url", "name":"websites", "label":"More info",
+                "content":[
+                    {"type":"url", "name":"website1", "href":"http://website1.com"},
+                    {"type":"url", "name":"website2", "description":"Introduction to quantum physics.", "href":"http://website2.com/"}
+                ]
+            },
+            {"type":"image", "method":"panorama", "name": "Japanese Garden",
+                "resource": ["http://imageserver.com/image1.jpg",
+                             "http://imageserver.com/image1.jpg",
+                             "http://imageserver.com/image1.jpg",
+                             "http://imageserver.com/image1.jpg"],
+                "dataSource":{"author":"Beautiful Joe", "licence":"CC BY 3.0", "created":"05-12-2007",
+                    "updated":"21-08-2013", "revision": 52, "changeFreq":"weekly"}
+            },
+            {"type":"image", "name": "Seminar", "label":"People at seminar", "resource": ["http://imageserver.com/seminar.jpg"]}
+
+        ],
+        "times": [
+            {"type":"ageConstraint", "validFrom":"2013-08-30T09:00:00"},
+            {"type":"group", "contentType":"timeConstraint", "name":"Business hours",
+                "content":[
+                    {"type":"timeConstraint", "validFrom":"2013-10-15T09:00:00", "dayOfWeek":["monday"], "start":"9:00", "end":"16:00"},
+                    {"type":"timeConstraint",  "dayOfWeek":["tuesday", "wednesday", "thursday"], "start":"10:00", "end":"15:00"}
+                ]}
+        ],
+        "meta": [
+            {"type":"distance", "distance":50.2, "to":"ref to POI", "unit":"feet"},
+            {"type":"direction", "angle":[0.0, 1.0, 0.0, 0.0], "to":"ref to another POI"},
+            {"type":"accessibility", "score":0.3, "description":"Better leave your wheelchair home and buy a kayak."},
+            {"type":"visibility", "score":0.01, "description":"Use thermal binoculars."}
+        ]
+
+
+    },
+    "UUID2": {
+        // Another POI
+    }
+
+}
