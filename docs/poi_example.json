@@ -5,14 +5,18 @@
         "structure": {
             "shape": [
                 {
-                    "type":"point",
-                    "center": [0.1, -0.3, 0.0]
+                    "type":"polygon",
+                    "center": [0.1, -0.3, 0.0],
+                    "vertices": [[0.1, -0.3, 0.0],
+                                 [0.1, 5.0, 0.0],
+                                 [3.0, 6.0, 0.0]]
                 }
             ],
             "bounds": [
                 {
                     "type":"sphere",
-                    "vertices":[[0.1,-0.3,0.0], [0.1,-0.5,0.0], [0.8,-0.7,0.0]]
+                    "center": [0.0, 1.0, 0.0],
+                    "radius": 5.0
                 }
             ]
         },
@@ -51,7 +55,7 @@
                                                             Internet research, innovation processes and new infrastructures."},
             {"type":"icon", "resource":"data:image/x-icon;base64,AAABAAEAEBAAAAAAAABoBAA..."},
             {"type":"url", "name":"website1", "href":"http://someurl.com"},
-            {"type":"group", "contentType":"url", "name":"websites", "label":"More info",
+            {"type":"group", "contentType":"url", "name":"web sites", "label":"More info",
                 "content":[
                     {"type":"url", "name":"website1", "href":"http://website1.com"},
                     {"type":"url", "name":"website2", "description":"Introduction to quantum physics.", "href":"http://website2.com/"}
