@@ -1,0 +1,125 @@
+<pois>
+    <poi id="550e8400-29b-41d4-a716-446655440000" source="">
+
+        <structure>
+            <shape type="point">
+                <center>0.1 -0.3 0.0</center>
+            </shape>
+            <shape type="polygon">
+                <center>0.1 -0.3 0.0</center>
+                <vertices>
+                    <vertex>0.1, -0.3, 0.0</vertex>
+                    <vertex>0.1 5.0 0.0</vertex>
+                    <vertex>3.0 6.0 0.0</vertex>
+                </vertices>
+            </shape>
+            <bounds type="sphere">
+                <center>0.1 -0.3 0.0</center>
+                <radius>5.0</radius>
+            </bounds>
+        </structure>
+
+        <features>
+            <qrcode>
+                <code>0111 00001001 0100 00000101 10100001 10100010 10100011 10100100 10100101</code>
+                <bitfield>101</bitfield>
+                <transformation>
+                    <translation>3.2 3.2 0.0</translation>
+                    <rotation>0.707 0.0 0.707 0.0</rotation>
+                </transformation>
+            </qrcode>
+        </features>
+
+        <locations>
+            <wsg84>
+                <lon>65.0167</lon>
+                <lat>25.4667</lat>
+                <elevation>5.0</elevation>
+                <transformation>
+                    <rotation>1.0, 0.0, 0.0, 0.0</rotation>
+                </transformation>
+            </wsg84>
+            <soft>
+                <startPosition>2.0, 0.0, 0.0</startPosition>
+                <description>Face yourself to Mona Lisa. Turn left, walk 5 meters, look right.</description>
+            </soft>
+        </locations>
+
+        <contents>
+            <name xml:lang="en-UK" term="primary">Center for Internet Excellence</name>
+            <name xml:lang="ja-JP">インターネット卓越センター</name>
+            <label xml:lang="en-UK" term="primary">CIE</label>
+            <description xml:lang="en-UK">
+                CIE (Center for Internet Excellence is a research unit at
+                the University of Oulu, which aims at combining leading-edge
+                Internet research, innovation processes and new infrastructures.
+            </description>
+            <category scheme="http://www.census.gov/cgi-bin/sssd/naics/naicsrch?..." xml:lang="en-UK">
+                Colleges, Universities, and Professional Schools
+            </category>
+            <icon resource="data:image/x-icon;base64,AAABAAEAEBAAAAAAAABoBAA..."/>
+            <url name="website1" href="http://someurl.com/"/>
+            <group contentType="url" name="websites" label="More info">
+                <url name="website1" href="http://website1.com" />
+                <url name="website1" href="http://website1.com">
+                    <description>Introduction to quantum physics.</description>
+                </url>
+            </group>
+            <image type="panorama" name="Japanese Garden" resource="http://imageserver.com/image1.jpg;http://imageserver.com/image2.jpg;
+        http://imageserver.com/image3.jpg;http://imageserver.com/image4.jpg">
+                <dataSource>
+                    <author>Beautiful Joe</author>
+                    <license>CC BY 3.0</license>
+                    <created>05-12-2007</created>
+                    <updated>21-08-2013</updated>
+                    <revision>52</revision>
+                    <changeFreq>weekly</changeFreq>
+                </dataSource>
+            </image>
+            <image name="Seminar" resource="http://imageserver.com/seminar.jpg">
+                <label>People at seminar</label>
+            </image>
+        </contents>
+
+        <times>
+            <ageConstraint validFrom="2013-08-30T09:00:00" />
+            <group contentType="timeConstraint" name="Business hours">
+                <timeConstraint validFrom="2013-10-15T09:00:00">
+                    <dayOfWeek>monday</dayOfWeek>
+                    <start>9:00</start>
+                    <end>16:00</end>
+                </timeConstraint>
+                <timeConstraint>
+                    <dayOfWeek>tuesday wednesday thursday</dayOfWeek>
+                    <start>10:00</start>
+                    <end>15:00</end>
+                </timeConstraint>
+            </group>
+
+        </times>
+
+        <relations>
+            <relation type="child" ref="ref to meeting room POI" />
+        </relations>
+
+        <meta>
+            <distance to="ref to POI" unit="feet">50.2</distance>
+            <direction to="ref to another POI">0.0 1.0 0.0 0.0</direction>
+            <accessibility score="0.3">
+                <description>
+                    Better leave your wheelchair home and buy a kayak.
+                </description>
+            </accessibility>
+            <visibility score="0.01">
+                <description>
+                    Use thermal binoculars.
+                </description>
+            </visibility>
+        </meta>
+
+    </poi>
+
+    <poi id="UUID2" source="">
+        ...
+    </poi>
+</pois>
