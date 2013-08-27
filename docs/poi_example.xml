@@ -1,21 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <pois>
     <poi id="550e8400-29b-41d4-a716-446655440000" source="">
 
         <structure>
-            <shape type="point">
-                <center>0.1 -0.3 0.0</center>
+            <shape>
+                <center>0.0 0.0 0.0</center>
+                <point>
+                    <center>0.1 -0.3 0.0</center>
+                </point>
+                <polygon>
+                    <center>0.1 -0.3 0.0</center>
+                    <vertices>
+                        <vertex>0.1, -0.3, 0.0</vertex>
+                        <vertex>0.1 5.0 0.0</vertex>
+                        <vertex>3.0 6.0 0.0</vertex>
+                    </vertices>
+                </polygon>
             </shape>
-            <shape type="polygon">
-                <center>0.1 -0.3 0.0</center>
-                <vertices>
-                    <vertex>0.1, -0.3, 0.0</vertex>
-                    <vertex>0.1 5.0 0.0</vertex>
-                    <vertex>3.0 6.0 0.0</vertex>
-                </vertices>
-            </shape>
-            <bounds type="sphere">
-                <center>0.1 -0.3 0.0</center>
-                <radius>5.0</radius>
+            <bounds>
+                <sphere>
+                    <center>0.1 -0.3 0.0</center>
+                    <radius>5.0</radius>
+                </sphere>
             </bounds>
         </structure>
 
@@ -60,7 +66,7 @@
             <icon resource="data:image/x-icon;base64,AAABAAEAEBAAAAAAAABoBAA..."/>
             <url name="website1" href="http://someurl.com/"/>
             <group contentType="url" name="websites" label="More info">
-                <url name="website1" href="http://website1.com" />
+                <url name="website1" href="http://website1.com"/>
                 <url name="website1" href="http://website1.com">
                     <description>Introduction to quantum physics.</description>
                 </url>
@@ -82,7 +88,7 @@
         </contents>
 
         <times>
-            <ageConstraint validFrom="2013-08-30T09:00:00" />
+            <ageConstraint validFrom="2013-08-30T09:00:00"/>
             <group contentType="timeConstraint" name="Business hours">
                 <timeConstraint validFrom="2013-10-15T09:00:00">
                     <dayOfWeek>monday</dayOfWeek>
@@ -99,7 +105,7 @@
         </times>
 
         <relations>
-            <relation type="child" ref="ref to meeting room POI" />
+            <child ref="ref to meeting room POI"/>
         </relations>
 
         <meta>
