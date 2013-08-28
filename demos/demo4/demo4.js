@@ -90,7 +90,7 @@
                 // Now we check if the new search point is far enough from old query points.
                 len = oldSearchPoints.length;
                 for (i=len; i--;){
-                    dist = distHaversine(mapCenter, oldSearchPoints[i]);
+                    dist = distHaversine(mapCenter, oldSearchPoints[i]['center']);
                     console.log(dist);
                     if(dist < minDist){
                         minDist = dist;
@@ -126,7 +126,7 @@
 
     // Distance between two points on a sphere
     function distHaversine( p1, p2 ) {
-        var R = 6371; // earth's mean radius in km
+        var R = 6378137; // earth's mean radius in m
         var dLat = rad( p2.lat() - p1.lat() );
         var dLong = rad( p2.lng() - p1.lng() );
 
@@ -135,7 +135,7 @@
         var c = 2 * Math.atan2( Math.sqrt( a ), Math.sqrt( 1 - a ) );
         var d = R * c;
 
-        return d.toFixed( 3 )*1000;
+        return d.toFixed( 3 );
     }
 
 
@@ -187,7 +187,17 @@
 
         webSocket.send( JSON.stringify( {lat: mapCenter.lat(), lon: mapCenter.lng(), radius: searchRadius} ) );
 
-        oldSearchPoints.push(mapCenter);
+        oldSearchPoints.push({center: mapCenter, radius: searchRadius});
+
+        var circle = new google.maps.Circle({
+            strokeWeight: 1,
+            fillColor: '#FF0000',
+            fillOpacity: 0.10,
+            radius: searchRadius,
+            center: mapCenter,
+            map: map
+        });
+
         console.log(oldSearchPoints)
 
         // this will return error message (No POIs found)
