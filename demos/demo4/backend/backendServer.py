@@ -27,15 +27,13 @@ def doPoiSearch(search):
 
 def parseXmlDocument(document):
     etree = ET.fromstring(document)
-    data = dict()
+    data = {}
 
     if etree.tag == "Error":
         print "Error in search"
-        message = dict()
-        message["msg"] = etree.find("msg").text
-        message["query"] = etree.find("query").text
+        message = {"msg": etree.find("msg").text, "query": etree.find("query").text}
 
-        return '{"Error":' + (str(message).replace('\'', '"')) + '}'
+        return json.dumps({"Error": message})
 
     # Iterating through POI elements in the XML and mapping the data into JSON object
     for poiElement in etree.findall("poi"):
@@ -43,7 +41,7 @@ def parseXmlDocument(document):
         if uuid is None:
             continue
 
-        poi = dict()
+        poi = {}
         contents = []
         locations = []
 
@@ -52,7 +50,7 @@ def parseXmlDocument(document):
         # Parsing contents
         label = poiElement.find("label")
         if label is not None:
-            tmp = dict(type="name", lang="en-UK")
+            tmp = {"type": "name", "lang": "en-UK"}
 
             if label.get("term") is not None:
                 tmp["term"] = label.get("term")
@@ -63,7 +61,7 @@ def parseXmlDocument(document):
         if category is not None:
             # Line below has a hack to remove unneeded ' characters from result string,
             # since data format in OpenPOI's database have changed after original code was written
-            tmp = dict(type="category", lang="en-UK", value=category.find("value").text.replace("'", ""))
+            tmp = {"type": "category", "lang": "en-UK", "value": category.find("value").text.replace("'", "")}
             if category.get("scheme") is not None:
                 tmp["scheme"] = category.get("scheme")
 
@@ -73,7 +71,7 @@ def parseXmlDocument(document):
         location = poiElement.find("location")
         if location is not None:
             lat, lon = location.find("point").find("Point").find("posList").text.split()
-            locations.append(dict(type="wsg84", lat=lat, lon=lon))
+            locations.append({"type": "wsg84", "lat": lat, "lon": lon})
 
         # Map POI to JSON
         poi["contents"] = contents
