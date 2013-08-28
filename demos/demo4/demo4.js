@@ -96,16 +96,17 @@
                         minDist = dist;
                     }
                 }
-                if(minDist <= searchRadius/2){
+
+                if(minDist <= searchRadius){
                     return;
                 }
-                console.log("No old query points near. Threshold:", searchRadius/2, "meters. Min dist:", minDist);
+                console.log("No old query points near. Threshold:", searchRadius, "meters. Min dist:", minDist);
 
                 // Initiate new search after timeout
                 clearTimeout( centerChangedTimeout );
-                centerChangedTimeout = window.setTimeout( function () {
-                    searchPOIs();
-                }, 1000 );
+                centerChangedTimeout = window.setTimeout( function (lat, lng) {
+                    searchPOIs(lat, lng);
+                }, 1000, mapCenter.lat(), mapCenter.lng() );
 
                 oldMapCenter = mapCenter;
 
@@ -135,7 +136,7 @@
         var c = 2 * Math.atan2( Math.sqrt( a ), Math.sqrt( 1 - a ) );
         var d = R * c;
 
-        return d.toFixed( 3 );
+        return d;
     }
 
 
@@ -180,21 +181,29 @@
         }
     }
 
-    function searchPOIs() {
-        var mapCenter = map.getCenter();
+    function searchPOIs(lat, lng) {
+        var center, searchPoint;
+
+        if (!lat || !lng){
+            center = map.getCenter();
+            lat = center.lat();
+            lng = center.lng();
+        }
+
         log( "Doing search from OpenPOIS database, this can take several minutes." );
-        log( "Map center: lat=" + mapCenter.lat() + " lon=" + mapCenter.lng() );
+        log( "Map center: lat=" + lat + " lon=" + lng );
 
-        webSocket.send( JSON.stringify( {lat: mapCenter.lat(), lon: mapCenter.lng(), radius: searchRadius} ) );
+        webSocket.send( JSON.stringify( {lat: lat, lon: lng, radius: searchRadius} ) );
 
-        oldSearchPoints.push({center: mapCenter, radius: searchRadius});
+        searchPoint = new google.maps.LatLng(lat, lng);
+        oldSearchPoints.push({center: searchPoint, radius: searchRadius});
 
         var circle = new google.maps.Circle({
             strokeWeight: 1,
             fillColor: '#FF0000',
             fillOpacity: 0.10,
             radius: searchRadius,
-            center: mapCenter,
+            center: searchPoint,
             map: map
         });
 
