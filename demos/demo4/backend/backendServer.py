@@ -14,10 +14,19 @@ from autobahn.websocket import WebSocketServerFactory, WebSocketServerProtocol, 
 RequestBaseURL = "http://openpois.net/poiquery.php?"
 
 
-def doPoiSearch(search):
+def doPoiSearch(request):
     global RequestBaseURL
     http = httplib2.Http()
-    requestUrl = RequestBaseURL + search
+
+    parameters = json.loads(request)
+
+    if not parameters["lat"] or not parameters["lon"]:
+        return
+
+    if not parameters["radius"]:
+        parameters["radius"] = 300
+    requestUrl = RequestBaseURL + "lat=" + str(parameters["lat"]) + "&lon=" + str(parameters["lon"]) + \
+                 "&radius="+ str(parameters["radius"]) + "&format=application/xml"
 
     print ("Doing search with requestUrl: " + requestUrl)
     response, content = http.request(requestUrl, 'POST')
