@@ -135,13 +135,14 @@ div#log {
 
 }
 
-.infoTitle {
+
+div#infoTitle {
     font-size: 0.9em;
-    font-weight:bold;
+    font-weight: bold;
 }
 
-.infoText {
-    font-size: 0.7em;
+div#infoText {
+    font-size: 0.8em;
 }
 
 button {
