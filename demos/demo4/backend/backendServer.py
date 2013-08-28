@@ -50,7 +50,7 @@ def parseXmlDocument(document):
         # Parsing contents
         label = poiElement.find("label")
         if label is not None:
-            tmp = {"type": "name", "lang": "en-UK"}
+            tmp = {"type": "name", "lang": "en-UK", "value": label.find("value").text}
 
             if label.get("term") is not None:
                 tmp["term"] = label.get("term")
@@ -59,9 +59,13 @@ def parseXmlDocument(document):
 
         category = poiElement.find("category")
         if category is not None:
+
+            tmp = {"type": "category", "lang": "en-UK", "value":""}
             # Line below has a hack to remove unneeded ' characters from result string,
             # since data format in OpenPOI's database have changed after original code was written
-            tmp = {"type": "category", "lang": "en-UK", "value": category.find("value").text.replace("'", "")}
+            if category.find("value") is not None:
+                tmp["value"] = category.find("value").text.replace("'", "")
+
             if category.get("scheme") is not None:
                 tmp["scheme"] = category.get("scheme")
 
