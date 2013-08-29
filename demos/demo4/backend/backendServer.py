@@ -23,18 +23,22 @@ def doPoiSearch(request):
     if not parameters["lat"] or not parameters["lon"]:
         return
 
+    queryID = parameters["id"]
+
     if not parameters["radius"]:
         parameters["radius"] = 300
+
+    # OpenPOIs db restrictions: max search radius: 5000, max returned POIs: 25
     requestUrl = RequestBaseURL + "lat=" + str(parameters["lat"]) + "&lon=" + str(parameters["lon"]) + \
-                 "&radius="+ str(parameters["radius"]) + "&format=application/xml"
+                 "&radius="+ str(parameters["radius"]) + "&maxfeatures=25&format=application/xml"
 
     print ("Doing search with requestUrl: " + requestUrl)
     response, content = http.request(requestUrl, 'POST')
 
-    return content
+    return content, queryID
 
 
-def parseXmlDocument(document):
+def parseXmlDocument(document, queryID):
     etree = ET.fromstring(document)
     data = {}
 
@@ -91,22 +95,24 @@ def parseXmlDocument(document):
         poi["locations"] = locations
         data[uuid] = poi
 
-    return json.dumps({"pois": data}, indent=2)
+    # Return query response in JSON. Modified separators for compressing the JSON data a bit.
+    # Use indent=2 for pretty print on console.
+    return json.dumps({"queryID":queryID, "pois": data}, separators=(',',':')) #indent=2)
 
 
 class MessageBasedHashServerProtocol(WebSocketServerProtocol):
     def onOpen(self):
         print ("onOpen")
 
-    def onMessage(self, search, binary):
+    def onMessage(self, searchParams, binary):
         class ActionThread(threading.Thread):
             def __init__(self, protocol):
                 threading.Thread.__init__(self)
                 self.protocol = protocol
 
             def run(self):
-                responseMessage = doPoiSearch(search)
-                parsedResponse = parseXmlDocument(responseMessage)
+                responseMessage, queryID = doPoiSearch(searchParams)
+                parsedResponse = parseXmlDocument(responseMessage, queryID)
                 print (parsedResponse)
                 reactor.callFromThread(self.protocol.sendMessage, parsedResponse)
 
