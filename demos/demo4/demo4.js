@@ -2,7 +2,9 @@
     var log = wex.Util.log, map, geocoder, homeMarker, positionMarker, poiWindow,
         poiStorage = {},
         markers = [],
-        oldSearchPoints = [],
+        oldSearchPoints = {},
+        queries = {},
+        queryID = 0, //Running number to identify POI search areas, and to track search success
         webSocket = null,
         centerChangedTimeout,
         oldMapCenter,
@@ -35,7 +37,7 @@
         geocoder = new google.maps.Geocoder();
 
         var mapOptions = {
-            zoom: 15,
+            zoom: 16,
             mapTypeId: google.maps.MapTypeId.ROADMAP,
             center: new google.maps.LatLng( 65.0610432, 25.468170099999952 ) //Initial location Oulu University
         };
@@ -65,19 +67,22 @@
         google.maps.event.addListener( map, 'zoom_changed', function () {
             var zoomLevel = map.getZoom();
 
-            if ( zoomLevel <= 14 ) {
-                searchRadius = 1000;
-            } else if ( zoomLevel >= 18 ) {
-                searchRadius = 200;
-            } else if ( zoomLevel > 14 && zoomLevel < 18 ) {
+            if ( zoomLevel <= 10 ) {
+                searchRadius = 5000;
+            } else if ( zoomLevel <= 14 && zoomLevel > 10 ) {
+                searchRadius = 5000 + (10 - zoomLevel) * 1000;
+            } else if ( zoomLevel > 5 && zoomLevel < 20 ) {
                 searchRadius = 1000 - (zoomLevel - 10) * 100;
+            } else if ( zoomLevel >= 20 ) {
+                searchRadius = 50;
             }
 
             log( "Zoom level: " + zoomLevel + " Search radius: " + searchRadius );
         } );
 
         google.maps.event.addListener( map, 'center_changed', function () {
-            var mapCenter = map.getCenter(), dist, minDist = Infinity, i, len;
+            var mapCenter = map.getCenter(), dist, minDist = Infinity, i, len,
+                searchPoints = oldSearchPoints[searchRadius + ''];
 
             //TODO: Experimental feature. Reducing amount of queries to backend. (wip)
             dist = distHaversine( mapCenter, oldMapCenter );
@@ -85,28 +90,32 @@
 
             // Center has to move enough before looking through old search points. Reduces processing amount.
             if ( dist > CENTER_CHANGED_THRESHOLD ) {
-                console.log("Map center moved above threshold. Dist:", dist, "meters.");
+                //console.log("Map center moved above threshold. Dist:", dist, "meters.");
 
                 // Now we check if the new search point is far enough from old query points.
-                len = oldSearchPoints.length;
-                for (i=len; i--;){
-                    dist = distHaversine(mapCenter, oldSearchPoints[i]['center']);
-                    console.log(dist);
-                    if(dist < minDist){
-                        minDist = dist;
+                if ( searchPoints ) {
+                    len = searchPoints.length;
+
+                    for ( i = len; i--; ) {
+                        dist = distHaversine( mapCenter, searchPoints[i]['center'] );
+                        //console.log(dist);
+                        if ( dist < minDist ) {
+                            minDist = dist;
+                        }
+
                     }
+
+                    if ( minDist <= searchRadius * 0.8 ) {
+                        return;
+                    }
+                    console.log( "No old query points near. Threshold:", searchRadius, "meters. Min dist:", minDist );
                 }
 
-                if(minDist <= searchRadius){
-                    return;
-                }
-                console.log("No old query points near. Threshold:", searchRadius, "meters. Min dist:", minDist);
-
-                // Initiate new search after timeout
+                // Initiate new search after small timeout, so the search is not constantly triggered while moving the map
                 clearTimeout( centerChangedTimeout );
-                centerChangedTimeout = window.setTimeout( function (lat, lng) {
-                    searchPOIs(lat, lng);
-                }, 1000, mapCenter.lat(), mapCenter.lng() );
+                centerChangedTimeout = window.setTimeout( function ( lat, lng ) {
+                    searchPOIs( lat, lng );
+                }, 800, mapCenter.lat(), mapCenter.lng() );
 
                 oldMapCenter = mapCenter;
 
@@ -127,16 +136,17 @@
 
     // Distance between two points on a sphere
     function distHaversine( p1, p2 ) {
-        var R = 6378137; // earth's mean radius in m
-        var dLat = rad( p2.lat() - p1.lat() );
-        var dLong = rad( p2.lng() - p1.lng() );
+        var R, dLat, dLong, a, c;
 
-        var a = Math.sin( dLat / 2 ) * Math.sin( dLat / 2 ) +
+        R = 6378137; // earth's mean radius in m
+        dLat = rad( p2.lat() - p1.lat() );
+        dLong = rad( p2.lng() - p1.lng() );
+
+        a = Math.sin( dLat / 2 ) * Math.sin( dLat / 2 ) +
             Math.cos( rad( p1.lat() ) ) * Math.cos( rad( p2.lat() ) ) * Math.sin( dLong / 2 ) * Math.sin( dLong / 2 );
-        var c = 2 * Math.atan2( Math.sqrt( a ), Math.sqrt( 1 - a ) );
-        var d = R * c;
+        c = 2 * Math.atan2( Math.sqrt( a ), Math.sqrt( 1 - a ) );
 
-        return d;
+        return R * c;
     }
 
 
@@ -181,10 +191,10 @@
         }
     }
 
-    function searchPOIs(lat, lng) {
+    function searchPOIs( lat, lng ) {
         var center, searchPoint;
 
-        if (!lat || !lng){
+        if ( !lat || !lng ) {
             center = map.getCenter();
             lat = center.lat();
             lng = center.lng();
@@ -193,25 +203,40 @@
         log( "Doing search from OpenPOIS database, this can take several minutes." );
         log( "Map center: lat=" + lat + " lon=" + lng );
 
-        webSocket.send( JSON.stringify( {lat: lat, lon: lng, radius: searchRadius} ) );
+        webSocket.send( JSON.stringify( {lat: lat, lon: lng, radius: searchRadius, id: queryID} ) );
 
-        searchPoint = new google.maps.LatLng(lat, lng);
-        oldSearchPoints.push({center: searchPoint, radius: searchRadius});
+        searchPoint = new google.maps.LatLng( lat, lng );
 
-        var circle = new google.maps.Circle({
+
+        var circle = new google.maps.Circle( {
             strokeWeight: 1,
             fillColor: '#FF0000',
             fillOpacity: 0.10,
             radius: searchRadius,
             center: searchPoint,
             map: map
-        });
+        } );
 
-        console.log(oldSearchPoints)
+        if ( !oldSearchPoints.hasOwnProperty( searchRadius + '' ) ) {
+            oldSearchPoints[searchRadius + ''] = [];
+        }
 
-        // this will return error message (No POIs found)
-        //webSocket.send("lat=42.349433712876&lon=-71.040894451933&maxfeatures=9&format=application/xml");
+        queries[queryID + ''] = {id: queryID, center: searchPoint, radius: searchRadius, ready: false, debugShape: circle};
+        oldSearchPoints[searchRadius + ''].push( queries[queryID + ''] );
 
+        queryID++;
+
+        console.log( oldSearchPoints )
+
+    }
+
+    function findSearchPoint( id ) {
+        //console.log( "searching spoint, id", id );
+        if ( queries.hasOwnProperty( id + '' ) ) {
+            return queries[id + ''];
+        }
+
+        return false;
     }
 
     function storePoi( uuid, poiData ) {
@@ -284,8 +309,8 @@
 
     function parsePoiData( data ) {
 
-        var jsonData, poiData, coord, coords, pos, i, uuid, pois,
-            contents, locations, location;
+        var counter = 0, jsonData, poiData, pos, i, uuid, pois,
+            contents, locations, location, searchPoint;
 
         if ( !data ) {
             return;
@@ -311,17 +336,25 @@
                     if ( location['type'] === 'wsg84' ) {
                         pos = new google.maps.LatLng( location['lat'], location['lon'] );
                         addPOIToMap( pos, poiData );
+                        counter++;
                     }
                 }
 
             }
 
-            console.log( poiData );
+            //console.log( poiData );
 
             storePoi( uuid, poiData );
         }
 
+        if ( data.hasOwnProperty( "queryID" ) ) {
+            searchPoint = findSearchPoint( data['queryID'] );
+            searchPoint['debugShape'].setOptions( {fillColor: "#76EE00"} );
+            searchPoint['ready'] = true;
+        }
+
         log( "Ready." );
+        log( counter + " pois added on the map." );
 
         console.log( poiStorage );
     }
