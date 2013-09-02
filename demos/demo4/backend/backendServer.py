@@ -39,66 +39,82 @@ def doPoiSearch(request):
 
 
 def parseXmlDocument(document, queryID):
-    etree = ET.fromstring(document)
+    el = ET.fromstring(document)
     data = {}
 
-    if etree.tag == "Error":
+    #print ET.dump(el)
+
+    if el.tag == "Error":
         print "Error in search"
-        message = {"msg": etree.find("msg").text, "query": etree.find("query").text}
-
+        message = {"msg": el.find("msg").text, "query": el.find("query").text}
         return json.dumps({"Error": message})
-
-    # Iterating through POI elements in the XML and mapping the data into JSON object
-    for poiElement in etree.findall("poi"):
-        uuid = poiElement.get("id")
-        if uuid is None:
-            continue
-
-        poi = {}
-        contents = []
-        locations = []
-
-        poi["source"] = poiElement.get("base", "")
-
-        # Parsing contents
-        label = poiElement.find("label")
-        if label is not None:
-            tmp = {"type": "name", "lang": "en-UK", "value": label.find("value").text}
-
-            if label.get("term") is not None:
-                tmp["term"] = label.get("term")
-
-            contents.append(tmp)
-
-        category = poiElement.find("category")
-        if category is not None:
-
-            tmp = {"type": "category", "lang": "en-UK", "value":""}
-            # Line below has a hack to remove unneeded ' characters from result string,
-            # since data format in OpenPOI's database have changed after original code was written
-            if category.find("value") is not None:
-                tmp["value"] = category.find("value").text.replace("'", "")
-
-            if category.get("scheme") is not None:
-                tmp["scheme"] = category.get("scheme")
-
-            contents.append(tmp)
-
-        # Parsing locations
-        location = poiElement.find("location")
-        if location is not None:
-            lat, lon = location.find("point").find("Point").find("posList").text.split()
-            locations.append({"type": "wsg84", "lat": lat, "lon": lon})
-
-        # Map POI to JSON
-        poi["contents"] = contents
-        poi["locations"] = locations
-        data[uuid] = poi
+    elif el.tag =="pois":
+        # Iterating through POI elements in the XML and mapping the data into JSON object
+        for poiElement in el.findall("poi"):
+            uuid, poi = parseXmlPOIElement(poiElement)
+            if uuid is not None:
+                data[uuid] = poi
+    elif el.tag =="poi":
+        # Open poi seems to return only one <poi> element, instead of <pois> if there is only one poi found
+        uuid, poi = parseXmlPOIElement(el)
+        if uuid is not None:
+            data[uuid] = poi
+    else:
+        print "Error in search response"
+        message = {"msg": "Invalid response from OpenPOI database.", "query": el.find("query").text}
+        return json.dumps({"Error": message})
 
     # Return query response in JSON. Modified separators for compressing the JSON data a bit.
     # Use indent=2 for pretty print on console.
     return json.dumps({"queryID":queryID, "pois": data}, separators=(',',':')) #indent=2)
 
+
+def parseXmlPOIElement(el):
+    uuid = el.get("id")
+    if uuid is None:
+        return None
+
+    poi = {}
+    contents = []
+    locations = []
+
+    poi["source"] = el.get("base", "")
+
+    # Parsing contents
+    label = el.find("label")
+    if label is not None:
+        tmp = {"type": "name", "lang": "en-UK", "value": label.find("value").text}
+
+        if label.get("term") is not None:
+            tmp["term"] = label.get("term")
+
+        contents.append(tmp)
+
+    category = el.find("category")
+    if category is not None:
+
+        tmp = {"type": "category", "lang": "en-UK", "value":""}
+        # Line below has a hack to remove unneeded ' characters from result string,
+        # since data format in OpenPOI's database have changed after original code was written
+        if category.find("value") is not None:
+            tmp["value"] = category.find("value").text.replace("'", "")
+
+        if category.get("scheme") is not None:
+            tmp["scheme"] = category.get("scheme")
+
+        contents.append(tmp)
+
+    # Parsing locations
+    location = el.find("location")
+    if location is not None:
+        lat, lon = location.find("point").find("Point").find("posList").text.split()
+        locations.append({"type": "wsg84", "lat": lat, "lon": lon})
+
+    # Map POI to JSON
+    poi["contents"] = contents
+    poi["locations"] = locations
+
+    return uuid, poi
 
 class MessageBasedHashServerProtocol(WebSocketServerProtocol):
     def onOpen(self):
