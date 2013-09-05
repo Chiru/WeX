@@ -16,7 +16,7 @@
 <div id="overall">
     <div id="content">
         <div style="position: relative; width: 640px; height: 480px; margin: 0 auto">
-            <canvas id="background" width="640" height="1"
+            <canvas id="background" width="640" height="480"
                     style="position: absolute; top: 0px; width: 640px; height: 480px;"></canvas>
 
             <xml3d xmlns="http://www.xml3d.org/2009/xml3d"
@@ -27,6 +27,7 @@
                         <int name="index">0 1 2 1 2 3</int>
                         <float3 name="position">-1 -1 -5 1 -1 -5 -1 1 -5 1 1 -5</float3>
                         <float3 name="normal">0 0 1 0 0 1 0 0 1 0 0 1</float3>
+                        <float2 name="texcoord">0.0 0.0 1.0 0.0 0.0 1.0 1.0 1.0</float2>
                     </data>
                 </defs>
 
@@ -39,8 +40,8 @@
                     </data>
                 </data>
 
-                <!-- Viewpoint with connection to AR data -->
-                <view id="View" perspective="#arBase"/>
+                <!-- Viewpoint with connection to AR data
+                <view id="View" perspective="#arBase"/> -->
 
                 <!-- Object 1: -->
                 <!-- Extract visibility and transformation -->
@@ -72,8 +73,9 @@
                 <!-- Hierarchy of the displayed shape -->
                 <group transform="#t_square_ar" shader="#obj1Shader">
                     <group transform="#t_square_local">
-                        <group style="transform: rotateX(90deg) scale(100.5,100.5,100.5) translate3d(0px, 1px, 50px)">
+                        <group style="transform: rotateX(0deg) scale(100,100,100) translate3d(0px, 0px, 0x)">
                             <mesh id="squareMesh1" type="triangles" src="#squareShape" />
+                            <label>asdsa</label>
                         </group>
                     </group>
                 </group>

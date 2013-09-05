@@ -1,17 +1,17 @@
 // Application configuration
 
 
-(function (namespace, undefined ) {
+(function ( namespace, undefined ) {
     window.URL = window.URL || window.webkitURL;
     navigator.getUserMedia =
         navigator.getUserMedia || navigator.webkitGetUserMedia ||
             navigator.mozGetUserMedia || navigator.msGetUserMedia;
 
 
-    var videoElement =  document.getElementsByTagName( "video" )[0];
+    var videoElement = document.getElementsByTagName( "video" )[0];
 
     function enableWebcam() {
-        if ( !navigator.getUserMedia ){
+        if ( !navigator.getUserMedia ) {
             enableVideo();
             return;
         }
@@ -32,11 +32,10 @@
     }
 
     function enableVideo() {
-            videoElement.autoplay = true;
-            videoElement.src = "../../../resources/ar_marker.ogg";
+        videoElement.autoplay = true;
+        videoElement.src = "../../../resources/ar_marker.ogg";
+        document.querySelector( '#button1' ).checked = false;
     }
-
-
 
 
     function initialise() {
@@ -98,7 +97,7 @@
         // Initialising event listeners
         ( function () {
             var button = document.querySelector( '#button1' ),
-                infoPanel = document.querySelector( '#infoPanel');
+                infoPanel = document.querySelector( '#infoPanel' );
 
             button.addEventListener( 'click', function ( e ) {
                 if ( e.target.checked ) {
@@ -109,26 +108,30 @@
 
             }, false );
 
-            function handleOrientation(event) {
+            function handleOrientation( event ) {
                 var x = event.beta,  // In degree in the range [-180,180]
                     y = event.gamma, // In degree in the range [-90,90]
                     z = event.alpha;
 
                 // Because we don't want to have the device upside down
                 // We constrain the x value to the range [-90,90]
-                if (x >  90) { x =  90;}
-                if (x < -90) { x = -90;}
+                if ( x > 90 ) {
+                    x = 90;
+                }
+                if ( x < -90 ) {
+                    x = -90;
+                }
 
-                infoPanel.innerHTML  = "x : " + x.toFixed(2) + "\n";
-                infoPanel.innerHTML += "y: " + y.toFixed(2) + "\n";
-                infoPanel.innerHTML += "z: " + z.toFixed(2) + "\n";
+                infoPanel.innerHTML = "x : " + x.toFixed( 2 ) + "\n";
+                infoPanel.innerHTML += "y: " + y.toFixed( 2 ) + "\n";
+                infoPanel.innerHTML += "z: " + z.toFixed( 2 ) + "\n";
             }
 
-            window.addEventListener('deviceorientation', handleOrientation);
+            window.addEventListener( 'deviceorientation', handleOrientation );
 
         }() );
 
         initialise();
     };
 
-}(window['wex'] = window['wex'] || {}));
+}( window['wex'] = window['wex'] || {} ));
