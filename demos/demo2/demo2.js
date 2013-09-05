@@ -47,7 +47,7 @@
     function fallBack() {
         log( "Web Camera feed not available." );
         log( "Switching to fallback demo video." );
-        video.src = 'ar_marker.ogg';
+        video.src = '../../resources/ar_marker.ogg';
         fallbackMode = true;
     }
 
