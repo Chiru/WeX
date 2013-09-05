@@ -1,0 +1,114 @@
+@namespace xml3d "http://www.xml3d.org/2009/xml3d";
+
+* {
+    padding: 0;
+    margin: 0;
+}
+
+xml3d|float,
+xml3d|float2,
+xml3d|float3,
+xml3d|float4,
+xml3d|float4x4,
+xml3d|int,
+xml3d|int4,
+xml3d|bool,
+xml3d|script  {
+    display: none;
+}
+
+body {
+    font-family: 'Helevtica Neue',Helvetica,Arial,sans-serif;
+    color: #555;
+}
+
+xml3d {
+    width: 320px;
+    height: 240px;
+}
+
+a{
+    color: #365DA0;
+}
+a:hover{
+    color: #466DE0;
+}
+
+#overall{
+    -webkit-transition: all 0.3s ease;
+    -moz-transition: all 0.3s ease;
+}
+
+.navi_hidden #overall{
+    margin-left: 0;
+}
+
+iframe{
+    border: 0px;
+}
+
+
+/* CONTENT */
+
+#content {
+    position: relative;
+    width: auto;
+    min-height: 200px;
+    margin: 8px auto;
+    border: 1px solid #ccc;
+    padding: 16px 24px;
+}
+
+#content h1{
+    text-align: center;
+    margin-bottom: 8px;
+    border-bottom: 1px solid #ccc;
+    font-weight: normal;
+}
+
+#content p{
+    padding-bottom: 8px;
+}
+#content ul{
+    padding-left: 20px;
+}
+#content li{
+    padding-bottom: 4px;
+}
+
+#content div.description{
+    border: 1px solid #ccc;
+    background: #eee;
+    padding: 8px;
+    margin: 8px;
+    border-radius: 8px;
+}
+
+#content .xml3d{
+    display: block;
+    border: 1px solid #aaa;
+    margin: 16px auto;
+
+}
+
+/* INDEX CONTENT */
+
+#start ul{
+    list-style: none;
+}
+#start ul.sub li{
+    padding-left: 16px;
+    padding-bottom: 8px;
+}
+
+#start h5{
+    font-size: large;
+    font-weight: normal;
+    border-bottom: 1px solid #ccc;
+    margin: 8px 0;
+}
+
+#start a{
+    font-size: large;
+    display: block;
+}

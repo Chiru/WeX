@@ -1,0 +1,14 @@
+# Bugs
+
+## In Ubuntu
+
+### FireFox:
+    * XML3D.js renderer has some issues: PERFORMANCE WARNING: Attribute 0 is disabled. This has signficant performance penalty <-- depending on hardware
+                                         PERFORMANCE WARNING: Some textures are unrenderable.
+### Chrome:
+    * XML3D.js renderer has some issues: PERFORMANCE WARNING: Attribute 0 is disabled. This has signficant performance penalty <-- depending on hardware
+                                         PERFORMANCE WARNING: Some textures are unrenderable.
+
+# Features
+
+-
