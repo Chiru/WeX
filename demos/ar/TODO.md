@@ -26,12 +26,12 @@
 3. Add functionality for managing AR metadata/POI data. Utilise AR WSManager for fetching the data.
 4. Utilise InputManager for fetching video stream from device camera
 5. Fetch POI data
-5.1 Use current GPS location and query POI data from backend.
-5.2 Fetch 3D/2D assets from Asset Server using asset references in POI data,
-5.3 Utilise AssetManager for categorizing and storing the asset data
-5.4 Store POI data somewhere (general data manager for AR/POI data might well be needed)
+  1. Use current GPS location and query POI data from backend.
+  2. Fetch 3D/2D assets from Asset Server using asset references in POI data,
+  3. Utilise AssetManager for categorizing and storing the asset data
+  4. Store POI data somewhere (general data manager for AR/POI data might well be needed)
 6. Draw POIs on top of the video stream
-6.1 Utilise rotation matrix and GPS location from Input Manager
-6.2 Utilise POI assets stored in AssetManager, and POI location data
-6.3 Use e.g. haversine distance between current GPS location and drawable POI location to determine size and visibility of POI 2d/3d graphic
-6.4 Use rotation matrix from Sensor manager to determine POI locations and orientations on top of the video stream
+  1. Utilise rotation matrix and GPS location from Input Manager
+  2. Utilise POI assets stored in AssetManager, and POI location data
+  3. Use e.g. haversine distance between current GPS location and drawable POI location to determine size and visibility of POI 2d/3d graphic
+  4. Use rotation matrix from Sensor manager to determine POI locations and orientations on top of the video stream
