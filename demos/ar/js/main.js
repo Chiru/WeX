@@ -39,6 +39,8 @@
 
 
     function initialise() {
+        XML3D.debug.loglevel = 3;
+
         // setup video element to be streamed into canvas
         var ardata = document.getElementById( 'arBase' );
         var background = document.getElementById( 'background' );
@@ -113,6 +115,9 @@
                 var x = event.beta,  // In degree in the range [-180,180]
                     y = event.gamma, // In degree in the range [-90,90]
                     z = event.alpha;
+                if(x === null || y === null || z === null){
+                    infoPanel.innerHTML = "Orientation sensors are not available.";
+                }
 
                 // Because we don't want to have the device upside down
                 // We constrain the x value to the range [-90,90]

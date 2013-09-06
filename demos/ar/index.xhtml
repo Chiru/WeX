@@ -42,6 +42,7 @@
 
                 <!-- Viewpoint with connection to AR data
                 <view id="View" perspective="#arBase"/> -->
+                <view position="0 0 70" />
 
                 <!-- Object 1: -->
                 <!-- Extract visibility and transformation -->
@@ -66,6 +67,7 @@
                 </shader>
 
 
+
                 <!-- Transformations modified by XML3DDataObserver -->
                 <transform id="t_square_ar"/>
                 <transform id="t_square_local"/>
@@ -75,7 +77,7 @@
                     <group transform="#t_square_local">
                         <group style="transform: rotateX(0deg) scale(100,100,100) translate3d(0px, 0px, -20px)">
                             <!--<mesh id="squareMesh1" type="triangles" src="assets/teapot.xml#mesh" /-->
-                            <group id="twitter" transform="assets/twitter.xml#t_twitter">
+                            <group id="twitter" transform="assets/twitter.xml#t_twitter" onmouseover="alert('Mouse on Twitter!')">
                                 <group shader="assets/twitter.xml#twitter_0">
                                     <mesh src="assets/twitter.xml#mesh_twitter_twitter_0" type="triangles"/>
                                 </group>
