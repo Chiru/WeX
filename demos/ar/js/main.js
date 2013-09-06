@@ -42,7 +42,7 @@
         // setup video element to be streamed into canvas
         var ardata = document.getElementById( 'arBase' );
         var background = document.getElementById( 'background' );
-        var bgCtx = null;
+        var bgCtx = background.getContext( '2d' );
 
         var ballXfm = document.getElementById( 't_square_ar' );
         var ballLocalXfm = document.getElementById( 't_square_local' );
@@ -67,27 +67,28 @@
 
         // Initialise data observers
         var observer = new XML3DDataObserver( function ( records, observer ) {
-            var flipvideo = records[0].result.getValue( "flipvideo" );
+            //var flipvideo = records[0].result.getValue( "flipvideo" );
+            var arvideo = records[0].result.getValue( "arvideo" );
 
             //TODO: AR related flow processing using video feed as the data source can be added here
 
 
-            if ( flipvideo ) {
-                var data = Xflow.toImageData( flipvideo );
+            if ( arvideo ) {
+                var data = Xflow.toImageData( arvideo );
                 var width = data.width;
                 var height = data.height;
 
                 // Setup background canvas
-                if ( width !== background.width || height !== background.height || !bgCtx ) {
+                if ( width !== background.width || height !== background.height ) {
                     background.width = width;
                     background.height = height;
-                    bgCtx = background.getContext( '2d' );
                 }
+
                 bgCtx.putImageData( data, 0, 0 );
             }
         } );
 
-        observer.observe( ardata, {names: ["flipvideo"]} );
+        observer.observe( ardata, {names: ["arvideo"]} );
 
 
     }

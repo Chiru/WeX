@@ -33,11 +33,11 @@
 
                 <!-- AR Data -->
                 <data id="arBase">
-                    <data compute="flipvideo = xflow.flipVerticalImage(arvideo)">
+                    <!--data compute="flipvideo = xflow.flipVerticalImage(arvideo)"-->
                         <texture name="arvideo">
                             <video autoplay="false"/>
                         </texture>
-                    </data>
+                    <!--/data-->
                 </data>
 
                 <!-- Viewpoint with connection to AR data
@@ -73,8 +73,16 @@
                 <!-- Hierarchy of the displayed shape -->
                 <group transform="#t_square_ar" shader="#obj1Shader">
                     <group transform="#t_square_local">
-                        <group style="transform: rotateX(0deg) scale(100,100,100) translate3d(0px, 0px, 0x)">
-                            <mesh id="squareMesh1" type="triangles" src="#squareShape" />
+                        <group style="transform: rotateX(0deg) scale(100,100,100) translate3d(0px, 0px, -20px)">
+                            <!--<mesh id="squareMesh1" type="triangles" src="assets/teapot.xml#mesh" /-->
+                            <group id="twitter" transform="assets/twitter.xml#t_twitter">
+                                <group shader="assets/twitter.xml#twitter_0">
+                                    <mesh src="assets/twitter.xml#mesh_twitter_twitter_0" type="triangles"/>
+                                </group>
+                                <group shader="assets/twitter.xml#twitter_1">
+                                    <mesh src="assets/twitter.xml#mesh_twitter_twitter_1" type="triangles"/>
+                                </group>
+                            </group>
                         </group>
                     </group>
                 </group>
