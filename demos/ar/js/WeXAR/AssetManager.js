@@ -22,10 +22,24 @@
         // Setting options
         opts = extend( {}, defaults, options );
 
+        var meshAssets = {}, textureAssets = {}, materialAssets = {},
+            requestQueue = { queue: [], requests: {}},
+            storageURL;
 
-        this.init = function () {
 
+        this.setRemoteStorageUrl = function (url){
+            //TODO: Should check if url is properly formatted
+            if(typeof url === "string"){
+                storageURL = url;
+                return true;
+            }
+            return false;
         };
+
+        this.getRemoteStorageUrl = function () {
+            return storageURL;
+        };
+
     };
 
 

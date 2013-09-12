@@ -11,9 +11,13 @@
         util = namespace.Util;
 
     // Attributes
-    AR.VERSION = 'v0.0.1';
+    AR.VERSION = 'v0.0.5';
     AR.NAME = 'Wex AR';
     AR.ENUMS = {};
+
+
+    //XML3D Settings
+    XML3D.debug.loglevel = 3;
 
 
     // Top Level API
@@ -33,10 +37,17 @@
 
     };
 
+    AR.setupARManager = function ( options ) {
+        return AR.Framework.createARManager( options );
+
+    };
+
     AR.setupConnection = function ( options ) {
         return AR.Framework.createConnection( options );
 
     };
+
+
 
     AR.start = function () {
 

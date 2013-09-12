@@ -35,6 +35,8 @@
 
 
         this.init = function () {
+            log("InputManager: Initialising...");
+
             window.URL = window.URL || window.webkitURL;
             navigator.getUserMedia = (navigator.getUserMedia ||
                 navigator.webkitGetUserMedia ||
@@ -49,6 +51,8 @@
             }
 
             this.getCameraFeed();
+
+            log("InputManager: Done.");
 
         };
 

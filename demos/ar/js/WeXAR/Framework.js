@@ -17,7 +17,8 @@
         sensorManager: null, // Sensor manager for creating sensor listeners
         inputManager: null, // Manages video/audio input streams from device camera/microphone
         connection: null, // WebSocket connection manager
-        assetManager: null, // Asset manager stores & manages AR application related 3D/2D asset data
+        assetManager: null, // Asset manager stores & manages AR application related 3D/2D asset data,
+        arManager: null, // AR manager is responsible for creating observers for AR related XFlow elements
 
         options: {sensors: {}, input: {}, connection: {}, assets: {}, sync: {}},
 
@@ -49,6 +50,11 @@
 
         createAssetManager: function ( options ) {
             this.assetManager = new AR.AssetManager( this, options );
+            return this.assetManager;
+        },
+
+        createARManager: function ( options ) {
+            this.assetManager = new AR.ARManager( this, options );
             return this.assetManager;
         },
 

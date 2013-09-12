@@ -4,50 +4,7 @@
 (function ( namespace, undefined ) {
     var log = namespace.Util.log;
 
-    function initialise() {
-
-        // setup video element to be streamed into canvas
-        var ardata = document.getElementById( 'arBase' );
-        var background = document.getElementById( 'background' );
-        var bgCtx = background.getContext( '2d' );
-
-       // var ballXfm = document.getElementById( 't_square_ar' );
-        //var ballLocalXfm = document.getElementById( 't_square_local' );
-
-        // Initialise data observers
-        var observer = new XML3DDataObserver( function ( records, observer ) {
-            //var flipvideo = records[0].result.getValue( "flipvideo" );
-            var arvideo = records[0].result.getValue( "arvideo" );
-
-            //TODO: AR related flow processing using video feed as the data source can be added here
-
-           // log("observing");
-
-            if ( arvideo ) {
-                //log("observing");
-                var data = Xflow.toImageData( arvideo );
-                var width = data.width;
-                var height = data.height;
-
-                // Setup background canvas
-                if ( width !== background.width || height !== background.height ) {
-                    background.width = width;
-                    background.height = height;
-                }
-
-                bgCtx.putImageData( data, 0, 0 );
-            }
-        } );
-
-        observer.observe( ardata, {names: ["arvideo"]} );
-
-
-    }
-
     window.onload = function () {
-
-        XML3D.debug.loglevel = 5;
-
         // Initialising event listeners
         var button = document.querySelector( '#button1' ),
             infoPanel = document.querySelector( '#infoPanel' );
@@ -78,10 +35,10 @@
         var sensorManager = namespace.AR.setupSensors(),
             orientationListener = sensorManager.listenSensor( 'orientation' );
         orientationListener.signal.add( handleOrientation );
-
-
-        initialise();
         var inputManager = namespace.AR.setupInputManager();
+        var assetManager = namespace.AR.setupAssetManager();
+        var ARManager = namespace.AR.setupARManager();
+
 
 
     };
