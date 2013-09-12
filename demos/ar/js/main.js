@@ -8,7 +8,8 @@
             navigator.mozGetUserMedia || navigator.msGetUserMedia;
 
 
-    var videoElement = document.getElementsByTagName( "video" )[0];
+    var log = namespace.Util.log,
+        videoElement = document.getElementsByTagName( "video" )[0];
 
     function enableWebcam() {
         if ( !navigator.getUserMedia ) {
@@ -18,12 +19,13 @@
         navigator.getUserMedia(
             {video: true, audio: false},
             function ( stream ) {
-                var url = window.URL.createObjectURL( stream );
-                videoElement.autoplay = true;
-                videoElement.src = url;
+                if ( videoElement ) {
+                    var url = window.URL.createObjectURL( stream );
+                    videoElement.autoplay = true;
+                    videoElement.src = url;
 
-                document.querySelector( '#button1' ).checked = true;
-
+                    document.querySelector( '#button1' ).checked = true;
+                }
             },
             function ( err ) {
                 console.log( "The following error occured: " + err );
@@ -32,9 +34,11 @@
     }
 
     function enableVideo() {
-        videoElement.autoplay = true;
-        videoElement.src = "../../../resources/ar_marker.ogg";
-        document.querySelector( '#button1' ).checked = false;
+        if ( videoElement ) {
+            videoElement.autoplay = true;
+            videoElement.src = "../../../resources/ar_marker.ogg";
+            document.querySelector( '#button1' ).checked = false;
+        }
     }
 
 
@@ -48,21 +52,6 @@
 
         var ballXfm = document.getElementById( 't_square_ar' );
         var ballLocalXfm = document.getElementById( 't_square_local' );
-
-        var lastTime = Date.now();
-        var matrices = [];
-
-        var m3x3 = math.mat3.create();
-        var dir = math.vec3.create();
-        var p1 = math.vec3.create();
-        var p2 = math.vec3.create();
-        var tv = math.vec3.create();
-        var upVector = math.vec3.create();
-        var quat1 = math.quat4.create();
-        var quat2 = math.quat4.create();
-        var aa = math.quat4.create();
-        var axis = new XML3DVec3();
-        var matrixIndex = [0, 0]; // index of two matrices for interpolation
 
 
         enableWebcam();
@@ -115,8 +104,9 @@
                 var x = event.beta,  // In degree in the range [-180,180]
                     y = event.gamma, // In degree in the range [-90,90]
                     z = event.alpha;
-                if(x === null || y === null || z === null){
-                    infoPanel.innerHTML = "Orientation sensors are not available.";
+                if ( x === null || y === null || z === null ) {
+                    infoPanel.innerHTML = "No orientation data available.";
+                    return;
                 }
 
                 // Because we don't want to have the device upside down
@@ -133,7 +123,9 @@
                 infoPanel.innerHTML += "z: " + z.toFixed( 2 ) + "\n";
             }
 
-            window.addEventListener( 'deviceorientation', handleOrientation );
+            var sensorManager = namespace.AR.setupSensors(),
+                orientationListener = sensorManager.listenSensor( 'orientation' );
+            orientationListener.signal.add( handleOrientation );
 
         }() );
 

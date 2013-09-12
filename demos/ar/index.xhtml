@@ -6,78 +6,57 @@
 <head>
     <!-- Style -->
     <link rel="stylesheet" type="text/css" media="all" href="layout.css"/>
-    <link rel="stylesheet" type="text/css" media="all" href="ar.css"/>
 
     <title>WeX AR Application</title>
 
 </head>
 
 <body>
-<div id="overall">
+<div id="wrapper">
     <div id="content">
-        <div style="position: relative; width: 640px; height: 480px; margin: 0 auto">
-            <canvas id="background" width="640" height="480"
-                    style="position: absolute; top: 0px; width: 640px; height: 480px;"></canvas>
+        <div id="renderArea">
+            <canvas id="background"></canvas>
 
             <xml3d xmlns="http://www.xml3d.org/2009/xml3d"
                    style="background: rgba(0,0,0,0); position: absolute; top: 0; width: 640px; height: 480px;">
 
-                <defs>
-                    <data id="squareShape">
-                        <int name="index">0 1 2 1 2 3</int>
-                        <float3 name="position">-1 -1 -5 1 -1 -5 -1 1 -5 1 1 -5</float3>
-                        <float3 name="normal">0 0 1 0 0 1 0 0 1 0 0 1</float3>
-                        <float2 name="texcoord">0.0 0.0 1.0 0.0 0.0 1.0 1.0 1.0</float2>
-                    </data>
-                </defs>
-
-                <!-- AR Data -->
                 <data id="arBase">
-                    <!--data compute="flipvideo = xflow.flipVerticalImage(arvideo)"-->
+                    <data compute="flipvideo = xflow.flipVerticalImage(arvideo)">
                         <texture name="arvideo">
                             <video autoplay="false"/>
                         </texture>
-                    <!--/data-->
+                    </data>
                 </data>
 
-                <!-- Viewpoint with connection to AR data
-                <view id="View" perspective="#arBase"/> -->
+                <view id="View" perspective="#arBase"/>
                 <view position="0 0 70" />
 
-                <!-- Object 1: -->
-                <!-- Extract visibility and transformation -->
                 <data id="obj1AR" compute="transform = xflow.selectTransform(index, transforms)">
                     <bool name="visibility">true</bool>
-                    <!--
                     <data compute="visibility = xflow.selectBool(index, visibilities)">
                         <int name="index">0</int>
                         <data src="#arBase"/>
                     </data>
-                    -->
+
                 </data>
 
-                <!-- Shader (with visibility setting) -->
                 <shader id="obj1Shader" script="urn:xml3d:shader:phongvs">
                     <float3 name="diffuseColor">1.0 0.4 0.2</float3>
                     <float name="ambientIntensity">0.2</float>
 
-                     <!-- Take visibility from AR
-                    <data filter="keep(visibility)" src="#obj1AR"/> -->
+                    <data filter="keep(visibility)" src="#obj1AR"/>
                     <bool name="visibility">true</bool>
                 </shader>
 
 
-
-                <!-- Transformations modified by XML3DDataObserver -->
                 <transform id="t_square_ar"/>
                 <transform id="t_square_local"/>
 
-                <!-- Hierarchy of the displayed shape -->
                 <group transform="#t_square_ar" shader="#obj1Shader">
                     <group transform="#t_square_local">
                         <group style="transform: rotateX(0deg) scale(100,100,100) translate3d(0px, 0px, -20px)">
-                            <!--<mesh id="squareMesh1" type="triangles" src="assets/teapot.xml#mesh" /-->
-                            <group id="twitter" transform="assets/twitter.xml#t_twitter" onmouseover="alert('Mouse on Twitter!')">
+                            <group id="twitter" transform="assets/twitter.xml#t_twitter"
+                                   onclick="console.log('clicked twitter')" onmouseover="console.log('Mouse on Twitter!')">
                                 <group shader="assets/twitter.xml#twitter_0">
                                     <mesh src="assets/twitter.xml#mesh_twitter_twitter_0" type="triangles"/>
                                 </group>
@@ -89,7 +68,6 @@
                     </group>
                 </group>
 
-                <!-- Lights -->
                 <lightshader id="light1" script="urn:xml3d:lightshader:point">
                     <float3 name="intensity">1 1 1</float3>
                     <float3 name="attenuation">1 0 0</float3>
@@ -103,16 +81,20 @@
                 <group style="transform: translate3d(5px, 10px, 0px)">
                     <light shader="#light1"/>
                 </group>
-
-
             </xml3d>
+
         </div>
-        <div id ="infoPanel" class="webcam">
-        </div>
-        <div class="webcam">
+        <div id="buttons">
             <p><label><input type="checkbox" id="button1"/>Toggle Webcam</label></p>
         </div>
+        <div id="infoPanel">
+        </div>
+
     </div>
+    <div id="footer">
+        <div id="log"></div>
+    </div>
+
 </div>
 
 <!-- Dependencies -->
@@ -120,17 +102,16 @@
 <script type="text/javascript" src="../../deps/js/gl-matrix.js"></script>
 <script type="text/javascript" src="../../deps/js/Signals.js"></script>
 <script type="text/javascript" src="../../deps/js/Util.js"></script>
-<script type="text/javascript" src="js/JSARToolKit.js"></script>
-<script type="text/javascript" src="js/xflar.js"></script>
-<script type="text/javascript" src="js/phongvs.js"></script>
 
 <!-- Application Scrips -->
-<script type="text/javascript" src="js/Namespace.js"></script>
-<script type="text/javascript" src="js/Framework.js"></script>
-<script type="text/javascript" src="js/WSManager.js"></script>
-<script type="text/javascript" src="js/SensorManager.js"></script>
-<script type="text/javascript" src="js/SyncManager.js"></script>
-<script type="text/javascript" src="js/AssetManager.js"></script>
+<script type="text/javascript" src="js/WeXAR/JSARToolKit.js"></script>
+<script type="text/javascript" src="js/WeXAR/xflar.js"></script>
+<script type="text/javascript" src="js/WeXAR/phongvs.js"></script>
+<script type="text/javascript" src="js/WeXAR/Namespace.js"></script>
+<script type="text/javascript" src="js/WeXAR/Framework.js"></script>
+<script type="text/javascript" src="js/WeXAR/WSManager.js"></script>
+<script type="text/javascript" src="js/WeXAR/SensorManager.js"></script>
+<script type="text/javascript" src="js/WeXAR/AssetManager.js"></script>
 
 <script type="text/javascript" src="js/main.js"></script>
 

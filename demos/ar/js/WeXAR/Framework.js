@@ -17,12 +17,20 @@
         sensorManager: null, // Sensor manager for creating sensor listeners
         inputManager: null, // Manages video/audio input streams from device camera/microphone
         connection: null, // WebSocket connection manager
-        syncManager: null, // Sync manager for synching data through WebSocket
         assetManager: null, // Asset manager stores & manages AR application related 3D/2D asset data
 
-        options: {sensors: {}, inputStream: {}, connection: {}, assets: {}, sync: {}},
+        options: {sensors: {}, input: {}, connection: {}, assets: {}, sync: {}},
+
 
         // API
+
+        setOptions: function ( options, type ) {
+            if ( this.options.hasOwnProperty( type ) ) {
+                util.extend( this.options[type], options );
+                return true;
+            }
+            return false;
+        },
 
         createConnection: function ( options ) {
             this.connection = new AR.WSManager( this, options );
@@ -39,14 +47,15 @@
             return this.inputManager;
         },
 
-        createSyncManager: function ( options ) {
-            this.syncManager = new AR.SyncManager( this, options );
-            return this.syncManager;
-        },
-
         createAssetManager: function ( options ) {
             this.assetManager = new AR.AssetManager( this, options );
             return this.assetManager;
+        },
+
+
+        start: function() {
+
+            //this.connection.connect();
         }
 
     };
