@@ -28,15 +28,14 @@
                     </data>
                 </data>
 
-                <view id="View" perspective="#arBase"/>
+                <!--view id="View" perspective="#arBase"/-->
                 <view position="0 0 70" />
 
-                <data id="obj1AR" compute="transform = xflow.selectTransform(index, transforms)">
-                    <bool name="visibility">true</bool>
-                    <data compute="visibility = xflow.selectBool(index, visibilities)">
+                <data id="obj1AR"> <!--compute="transform = xflow.selectTransform(index, transforms)"-->
+                    <!--data compute="visibility = xflow.selectBool(index, visibilities)">
                         <int name="index">0</int>
                         <data src="#arBase"/>
-                    </data>
+                    </data-->
 
                 </data>
 
@@ -44,7 +43,7 @@
                     <float3 name="diffuseColor">1.0 0.4 0.2</float3>
                     <float name="ambientIntensity">0.2</float>
 
-                    <data filter="keep(visibility)" src="#obj1AR"/>
+                    <!--data filter="keep(visibility)" src="#obj1AR"/-->
                     <bool name="visibility">true</bool>
                 </shader>
 
