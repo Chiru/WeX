@@ -12,32 +12,38 @@
 </head>
 
 <body>
+
+
 <div id="wrapper">
     <div id="content">
+
         <div id="renderArea">
-            <canvas id="background"></canvas>
+
+
+            <canvas id="background" width="640" height="480"
+                    style="position: absolute; top: 0px; width: 640px; height: 480px;"></canvas>
 
             <xml3d xmlns="http://www.xml3d.org/2009/xml3d"
                    style="background: rgba(0,0,0,0); position: absolute; top: 0; width: 640px; height: 480px;">
 
                 <data id="arBase">
-                    <data compute="flipvideo = xflow.flipVerticalImage(arvideo)">
-                        <texture name="arvideo">
-                            <video autoplay="false"/>
-                        </texture>
-                    </data>
+                    <!--data compute="flipvideo = xflow.flipVerticalImage(arvideo)"-->
+                    <texture name="arvideo">
+                        <video></video>
+                    </texture>
+                    <!--/data-->
                 </data>
 
                 <!--view id="View" perspective="#arBase"/-->
                 <view position="0 0 70" />
 
-                <data id="obj1AR"> <!--compute="transform = xflow.selectTransform(index, transforms)"-->
-                    <!--data compute="visibility = xflow.selectBool(index, visibilities)">
+                <!--data id="obj1AR"compute="transform = xflow.selectTransform(index, transforms)">
+                    <data compute="visibility = xflow.selectBool(index, visibilities)">
                         <int name="index">0</int>
                         <data src="#arBase"/>
-                    </data-->
+                    </data>
 
-                </data>
+                </data-->
 
                 <shader id="obj1Shader" script="urn:xml3d:shader:phongvs">
                     <float3 name="diffuseColor">1.0 0.4 0.2</float3>
@@ -81,15 +87,16 @@
                     <light shader="#light1"/>
                 </group>
             </xml3d>
-
         </div>
+
         <div id="buttons">
-            <p><label><input type="checkbox" id="button1"/>Toggle Webcam</label></p>
+            <p><label><input type="checkbox" id="button1"/>Switch Camera</label></p>
         </div>
         <div id="infoPanel">
         </div>
 
     </div>
+
     <div id="footer">
         <div id="log"></div>
     </div>
@@ -109,6 +116,7 @@
 <script type="text/javascript" src="js/WeXAR/Namespace.js"></script>
 <script type="text/javascript" src="js/WeXAR/Framework.js"></script>
 <script type="text/javascript" src="js/WeXAR/WSManager.js"></script>
+<script type="text/javascript" src="js/WeXAR/InputManager.js"></script>
 <script type="text/javascript" src="js/WeXAR/SensorManager.js"></script>
 <script type="text/javascript" src="js/WeXAR/AssetManager.js"></script>
 

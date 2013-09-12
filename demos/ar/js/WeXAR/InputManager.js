@@ -26,21 +26,29 @@
 
 
         function noCameraFeedError () {
-
+            log("InputManager: ERROR: No camera feed available.");
         }
 
         function noUserMediaError () {
-
+            log("InputManager: ERROR: No navigator.getUserMedia method available, check if your browser supports WebRTC.");
         }
-
 
 
         this.init = function () {
             window.URL = window.URL || window.webkitURL;
-            navigator.getUserMedia =  navigator.getUserMedia || navigator.webkitGetUserMedia ||
-                    navigator.mozGetUserMedia || navigator.msGetUserMedia;
+            navigator.getUserMedia = (navigator.getUserMedia ||
+                navigator.webkitGetUserMedia ||
+                navigator.mozGetUserMedia ||
+                navigator.msGetUserMedia);
 
-            video = document.getElementsByTagName( "video" )[0];
+            video = document.querySelector( 'video' );
+
+            if(!video){
+                log("InputManager: ERROR: No <video> tag was found.");
+                return;
+            }
+
+            this.getCameraFeed();
 
         };
 
@@ -51,10 +59,12 @@
         this.getCameraFeed = function () {
             if ( this.hasGetUserMedia() ) {
                 log( "Requesting Camera feed." );
-                // Not showing vendor prefixes.
-                navigator.getUserMedia( {video: true, audio: true}, function ( stream ) {
-                    video.src = window.URL.createObjectURL( stream );
+
+                navigator.getUserMedia( {video: true, audio: false}, function ( stream ) {
+                    video.src =  window.URL.createObjectURL( stream );
                     localVideoStream = stream;
+                    log("InputManager: Got camera feed.");
+                    video.play();
 
                 }, noCameraFeedError() );
             } else {
@@ -64,7 +74,10 @@
         };
 
         this.switchCamera = function () {
-
+            this.stopStream();
+            // Requesting the camera feed again, user can then choose correct camera
+            // Changing camera directly trough the JavaScript API is not possible at the moment
+            this.getCameraFeed();
         };
 
         this.stopStream = function () {
@@ -77,21 +90,28 @@
             }
         };
 
-        this.startStream = function () {
-
-        };
-
         this.setVideoElement = function (el) {
             if(el.nodeName && el.nodeName === 'video' ){
                this.stopStream();
                video = el;
+               return video;
             }
+            return false;
         };
 
-        this.takeSnapShot = function () {
-
+        this.getVideoStream = function() {
+            if(localVideoStream){
+                return localVideoStream;
+            }
+            return false;
         };
 
+        this.getActiveVideo = function() {
+            if(video){
+                return video;
+            }
+            return false;
+        };
 
         this.init();
 
