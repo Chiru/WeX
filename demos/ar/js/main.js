@@ -12,11 +12,13 @@
         sensorManager = AR.setupSensors();
 
         orientationListener = sensorManager.listenSensor( 'orientation' );
-        orientationListener.signal.add( AR.GUI.showOrientation );
 
         inputManager = AR.setupInputManager();
         assetManager = AR.setupAssetManager();
         ARManager = AR.setupARManager();
+
+        AR.GUI.init();
+        AR.GUI.observeOrientation(orientationListener.signal);
 
     };
 

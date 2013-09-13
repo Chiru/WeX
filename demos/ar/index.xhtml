@@ -20,11 +20,9 @@
         <div id="renderArea">
 
 
-            <canvas id="background" width="640" height="480"
-                    style="position: absolute; top: 0px; width: 640px; height: 480px;"></canvas>
+            <canvas id="background" ></canvas>
 
-            <xml3d xmlns="http://www.xml3d.org/2009/xml3d"
-                   style="background: rgba(0,0,0,0); position: absolute; top: 0; width: 640px; height: 480px;">
+            <xml3d xmlns="http://www.xml3d.org/2009/xml3d" style="background: rgba(0,0,0,0);">
 
                 <defs>
                     <!-- Shader for rendering video on a texture -->
@@ -130,16 +128,14 @@
 
             </xml3d>
         </div>
-
-        <div id="buttons">
-            <p><label><input type="checkbox" id="button1"/>Switch Camera</label></p>
-        </div>
-        <div id="infoPanel">
-        </div>
-
     </div>
 
     <div id="footer">
+        <div id="buttons">
+            <p><button id="button1">Change Camera</button></p>
+        </div>
+        <div id="infoPanel">
+        </div>
         <div id="log"></div>
     </div>
 

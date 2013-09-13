@@ -27,6 +27,8 @@ xml3d {
     height: 240px;
 }
 
+
+
 a {
     color: #365DA0;
 }
@@ -45,43 +47,51 @@ iframe {
     position: absolute;
     border: 1px solid #000;
     padding: 16px 24px;
-    top: 8px;
-    right: 8px;
-    bottom: 73px;
-    left: 8px;
-}
-
-
-
-#content .xml3d {
-    display: block;
-    border: 1px solid #aaa;
-    margin: 16px auto;
-
+    top: 0;
+    right: 0;
+    bottom: 103px;
+    left: 0;
+    -moz-box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+    -box-sizing: border-box;
 }
 
 div#renderArea {
     position: relative;
-    min-width: 340px;
-    min-height:180px;
-    height: auto;
-    width: auto;
+    height: 100%;
+    width: 100%;
     border: solid 1px #ccc;
+    -moz-box-sizing: inherit;
+    -webkit-box-sizing: inherit;
+    -box-sizing: inherit;
 
 }
-
-#background {
-    height:auto;
-    width:50%;
+#renderArea #background {
+    position:absolute;
+    height:100%;
+    display: block;
+    z-index:10;
+    -moz-box-sizing: inherit;
+    -webkit-box-sizing: inherit;
+    -box-sizing: inherit;
 }
-
+#renderArea ._xml3d {
+    position:absolute;
+    display: block;
+    height:100%;
+    border: 1px solid #aaa;
+    z-index:11;
+    -moz-box-sizing: inherit;
+    -webkit-box-sizing: inherit;
+    -box-sizing: inherit;
+}
 
 div#footer {
     position: absolute;
     bottom: 0;
     left: 0;
     width: 100%;
-    height: 65px;
+    height: 95px;
 }
 
 div#infoPanel {
@@ -92,6 +102,7 @@ div#infoPanel {
 div#buttons {
     text-align: center;
     margin: 5px;
+    height:15px;
 }
 
 div#log {

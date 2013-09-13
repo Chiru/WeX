@@ -6,11 +6,13 @@
 
         AR = namespace.AR;
 
-    AR.GUI = {
-        showOrientation: function (e) {
-            var infoPanel = document.querySelector( '#infoPanel' );
+    AR.GUI = (function () {
 
-            if(!infoPanel){
+        var infoPanel, bChangeCamera;
+
+        var handleOrientation = function ( e ) {
+
+            if ( !infoPanel ) {
                 return;
             }
 
@@ -26,10 +28,36 @@
             infoPanel.innerHTML = "x : " + x.toFixed( 2 ) + "\n";
             infoPanel.innerHTML += "y: " + y.toFixed( 2 ) + "\n";
             infoPanel.innerHTML += "z: " + z.toFixed( 2 ) + "\n";
+        };
+
+        function observeOrientation( signal ) {
+            signal.add( handleOrientation );
+
         }
 
 
-    };
+        function changeCamera() {
+            AR.Framework.inputManager.switchCamera();
+        }
+
+        function init() {
+            bChangeCamera = document.querySelector( "#button1" );
+            if ( bChangeCamera ) {
+                bChangeCamera.onclick = changeCamera;
+            }
+
+            infoPanel = document.querySelector( '#infoPanel' );
+            if ( !infoPanel ) {
+                handleOrientation = function () {};
+            }
+        }
+
+        return {
+            init: init,
+            observeOrientation: observeOrientation
+        };
+
+    }());
 
 
 }( window['wex'] = window['wex'] || {} ));
