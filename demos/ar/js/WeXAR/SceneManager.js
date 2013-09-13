@@ -6,6 +6,7 @@
 
 
 (function ( namespace, undefined ) {
+    "use strict";
 
     // Util shortcuts
     var extend = namespace.Util.extend,
@@ -63,9 +64,6 @@
         this.getCamera = function(){
 
         };
-
-
-
 
 
         this.init();

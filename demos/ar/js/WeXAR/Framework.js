@@ -5,6 +5,7 @@
  */
 
 (function ( namespace, undefined ) {
+    "use strict";
 
     var Framework, util, AR;
 

@@ -6,6 +6,7 @@
 
 
 (function ( namespace, undefined ) {
+    "use strict";
 
     // Util shortcuts
     var extend = namespace.Util.extend,
@@ -25,17 +26,17 @@
         var video, localVideoStream;
 
 
-        function noCameraFeedError () {
-            log("InputManager: ERROR: No camera feed available.");
+        function noCameraFeedError() {
+            log( "InputManager: ERROR: No camera feed available." );
         }
 
-        function noUserMediaError () {
-            log("InputManager: ERROR: No navigator.getUserMedia method available, check if your browser supports WebRTC.");
+        function noUserMediaError() {
+            log( "InputManager: ERROR: No navigator.getUserMedia method available, check if your browser supports WebRTC." );
         }
 
 
         this.init = function () {
-            log("InputManager: Initialising...");
+            log( "InputManager: Initialising..." );
 
             window.URL = window.URL || window.webkitURL;
             navigator.getUserMedia = (navigator.getUserMedia ||
@@ -45,18 +46,18 @@
 
             video = document.querySelector( 'video' );
 
-            if(!video){
-                log("InputManager: ERROR: No <video> tag was found.");
+            if ( !video ) {
+                log( "InputManager: ERROR: No <video> tag was found." );
                 return;
             }
 
             this.getCameraFeed();
 
-            log("InputManager: Done.");
+            log( "InputManager: Done." );
 
         };
 
-        this.hasGetUserMedia = function (){
+        this.hasGetUserMedia = function () {
             return !!(navigator.getUserMedia);
         };
 
@@ -65,12 +66,12 @@
                 log( "Requesting Camera feed." );
 
                 navigator.getUserMedia( {video: true, audio: false}, function ( stream ) {
-                    video.src =  window.URL.createObjectURL( stream );
+                    video.src = window.URL.createObjectURL( stream );
                     localVideoStream = stream;
-                    log("InputManager: Got camera feed.");
+                    log( "InputManager: Got camera feed." );
                     video.play();
 
-                }, noCameraFeedError() );
+                }, noCameraFeedError );
             } else {
 
                 noUserMediaError();
@@ -85,33 +86,33 @@
         };
 
         this.stopStream = function () {
-            if(video){
+            if ( video ) {
                 video.pause();
             }
-            if(localVideoStream){
+            if ( localVideoStream ) {
                 localVideoStream.stop();
                 localVideoStream = null;
             }
         };
 
-        this.setVideoElement = function (el) {
-            if(el.nodeName && el.nodeName === 'video' ){
-               this.stopStream();
-               video = el;
-               return video;
+        this.setVideoElement = function ( el ) {
+            if ( el.nodeName && el.nodeName === 'video' ) {
+                this.stopStream();
+                video = el;
+                return video;
             }
             return false;
         };
 
-        this.getVideoStream = function() {
-            if(localVideoStream){
+        this.getVideoStream = function () {
+            if ( localVideoStream ) {
                 return localVideoStream;
             }
             return false;
         };
 
-        this.getActiveVideo = function() {
-            if(video){
+        this.getActiveVideo = function () {
+            if ( video ) {
                 return video;
             }
             return false;

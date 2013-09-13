@@ -5,6 +5,8 @@
  */
 
 (function ( namespace, undefined ) {
+    "use strict";
+
     var extend = namespace.Util.extend,
         AR = namespace.AR;
 

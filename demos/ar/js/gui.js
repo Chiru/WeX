@@ -14,9 +14,9 @@
                 return;
             }
 
-            var x = event.beta,  // In degree in the range [-180,180]
-                y = event.gamma, // In degree in the range [-90,90]
-                z = event.alpha;
+            var x = e.beta,  // In degree in the range [-180,180]
+                y = e.gamma, // In degree in the range [-90,90]
+                z = e.alpha;
 
             if ( x === null || y === null || z === null ) {
                 infoPanel.innerHTML = "No orientation data available.";

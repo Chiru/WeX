@@ -5,6 +5,7 @@
  */
 
 (function ( namespace, undefined ) {
+    "use strict";
 
     // Namespace for this application
     var AR = namespace.AR = {},

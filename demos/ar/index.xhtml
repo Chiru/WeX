@@ -26,13 +26,31 @@
             <xml3d xmlns="http://www.xml3d.org/2009/xml3d"
                    style="background: rgba(0,0,0,0); position: absolute; top: 0; width: 640px; height: 480px;">
 
+                <defs>
+                    <!-- Shader for rendering video on a texture -->
+                    <!--shader id="ex4_2_texShader" script="urn:xml3d:shader:phong">
+                        <float3 name="diffuseColor">1.0 1.0 1.0</float3>
+                        <float name="ambientIntensity">1.0</float>
+                        <data filter="rename({diffuseTexture: arvideo})" src="#ARBase"/>
+                    </shader>
+                    <transform id="myxfm" rotation="1 0 1 0" scale="100 100 100"/-->
+
+                    <!-- shader for Object to be drawn on the video stream -->
+                    <shader id="obj1Shader" script="urn:xml3d:shader:phongvs">
+                        <float3 name="diffuseColor">1.0 0.4 0.2</float3>
+                        <float name="ambientIntensity">0.2</float>
+
+                        <!--data filter="keep(visibility)" src="#obj1AR"/-->
+                        <bool name="visibility">true</bool>
+                    </shader>
+                </defs>
 
                 <!-- Base flow operator for AR data, renders video stream on a background canvas
                 Directly base video stream related operations can be added here, such as flipping the stream -->
                 <data id="ARBase">
                     <data compute="arvideo = xflow.flipVerticalImage(arvideo)">
                         <texture name="arvideo">
-                            <video/>
+                            <video autoplay="false" src="../../resources/ar_marker.ogg"></video>
                         </texture>
                     </data>
                 </data>
@@ -46,11 +64,11 @@
                             <data compute="histogram = xflip.createNormalizedHistogram(grvideo,channel)">
                                 <int name="channel">0</int>
                                 <data compute="grvideo = xflip.grayscale(arvideo)"-->
-                                    <data src="#ARBase"/>
-                                <!--/data>
-                            </data>
-                        </data>
-                    </data-->
+                    <data src="#ARBase"/>
+                    <!--/data>
+                </data>
+            </data>
+        </data-->
                 </data>
 
                 <view position="0 0 70"/>
@@ -63,21 +81,23 @@
 
                 </data-->
 
-                <shader id="obj1Shader" script="urn:xml3d:shader:phongvs">
-                    <float3 name="diffuseColor">1.0 0.4 0.2</float3>
-                    <float name="ambientIntensity">0.2</float>
 
-                    <!--data filter="keep(visibility)" src="#obj1AR"/-->
-                    <bool name="visibility">true</bool>
-                </shader>
+                <transform id="t_ar"/>
+                <transform id="t_local"/>
 
-
-                <transform id="t_square_ar"/>
-                <transform id="t_square_local"/>
-
-                <group transform="#t_square_ar" shader="#obj1Shader">
-                    <group transform="#t_square_local">
+                <group transform="#t_ar" shader="#obj1Shader">
+                    <group transform="#t_local">
                         <group style="transform: rotateX(0deg) scale(100,100,100) translate3d(0px, 0px, -20px)">
+
+                            <!--group style="shader: url(#ex4_2_texShader)" transform="#myxfm">
+                                <mesh type="triangles">
+                                    <int name="index">0 1 2  1 2 3</int>
+                                    <float3 name="position">-1 -1 -5 1 -1 -5 -1 1 -5 1 1 -5</float3>
+                                    <float3 name="normal">0 0 1  0 0 1  0 0 1 0 0 1</float3>
+                                    <float2 name="texcoord">0.0 0.0 1.0 0.0 0.0 1.0 1.0 1.0</float2>
+                                </mesh>
+                            </group-->
+
                             <group id="twitter" transform="assets/twitter.xml#t_twitter"
                                    onclick="console.log('clicked twitter')"
                                    onmouseover="console.log('Mouse on Twitter!')">
@@ -92,6 +112,7 @@
                     </group>
                 </group>
 
+
                 <lightshader id="light1" script="urn:xml3d:lightshader:point">
                     <float3 name="intensity">1 1 1</float3>
                     <float3 name="attenuation">1 0 0</float3>
@@ -105,6 +126,8 @@
                 <group style="transform: translate3d(5px, 10px, 0px)">
                     <light shader="#light1"/>
                 </group>
+
+
             </xml3d>
         </div>
 
