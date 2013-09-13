@@ -26,21 +26,39 @@
             <xml3d xmlns="http://www.xml3d.org/2009/xml3d"
                    style="background: rgba(0,0,0,0); position: absolute; top: 0; width: 640px; height: 480px;">
 
-                <data id="QRAnalyser">
-                    <!--data compute="flipvideo = xflow.flipVerticalImage(arvideo)"-->
-                    <texture name="arvideo">
-                        <video></video>
-                    </texture>
-                    <!--/data-->
+
+                <!-- Base flow operator for AR data, renders video stream on a background canvas
+                Directly base video stream related operations can be added here, such as flipping the stream -->
+                <data id="ARBase">
+                    <data compute="arvideo = xflow.flipVerticalImage(arvideo)">
+                        <texture name="arvideo">
+                            <video/>
+                        </texture>
+                    </data>
                 </data>
 
-                <!--view id="View" perspective="#arBase"/-->
-                <view position="0 0 70" />
+                <!-- Additional operators can be added as needed, they utilise the texture stream from ARBase
+                This operator finds and analyses QR tags from the video stream. -->
+                <data id="QRAnalyser">
+                    <!--data compute="transforms, visibilities, perspective = xflar.detect(arvideo, markers, threshold)">
+                        <int name="markers">22 64</int>
+                        <data compute="threshold = xflar.getOtsuThreshold(histogram)">
+                            <data compute="histogram = xflip.createNormalizedHistogram(grvideo,channel)">
+                                <int name="channel">0</int>
+                                <data compute="grvideo = xflip.grayscale(arvideo)"-->
+                                    <data src="#ARBase"/>
+                                <!--/data>
+                            </data>
+                        </data>
+                    </data-->
+                </data>
+
+                <view position="0 0 70"/>
 
                 <!--data id="obj1AR"compute="transform = xflow.selectTransform(index, transforms)">
                     <data compute="visibility = xflow.selectBool(index, visibilities)">
                         <int name="index">0</int>
-                        <data src="#arBase"/>
+                        <data src="#QRAnalyser"/>
                     </data>
 
                 </data-->
@@ -61,7 +79,8 @@
                     <group transform="#t_square_local">
                         <group style="transform: rotateX(0deg) scale(100,100,100) translate3d(0px, 0px, -20px)">
                             <group id="twitter" transform="assets/twitter.xml#t_twitter"
-                                   onclick="console.log('clicked twitter')" onmouseover="console.log('Mouse on Twitter!')">
+                                   onclick="console.log('clicked twitter')"
+                                   onmouseover="console.log('Mouse on Twitter!')">
                                 <group shader="assets/twitter.xml#twitter_0">
                                     <mesh src="assets/twitter.xml#mesh_twitter_twitter_0" type="triangles"/>
                                 </group>
@@ -121,7 +140,7 @@
 <script type="text/javascript" src="js/WeXAR/AssetManager.js"></script>
 <script type="text/javascript" src="js/WeXAR/SceneManager.js"></script>
 <script type="text/javascript" src="js/WeXAR/ARManager.js"></script>
-
+<script type="text/javascript" src="js/gui.js"></script>
 
 
 <script type="text/javascript" src="js/main.js"></script>

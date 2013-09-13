@@ -24,26 +24,21 @@
         var flowAnalysers, observers, background, bgCtx;
 
         flowAnalysers = {
+            'ARBase': false,
             'QRAnalyser': false
         };
 
         observers = {
+            'ARBase': videoStreamObserver(),
             'QRAnalyser': QRObserver()
         };
 
-
-        function QRObserver() {
+        function videoStreamObserver() {
             return new XML3DDataObserver( function ( records, observer ) {
-                //var flipvideo = records[0].result.getValue( "flipvideo" );
-                var arvideo = records[0].result.getValue( "arvideo" );
+                var arVideo = records[0].result.getValue( "arvideo" );
 
-                //TODO: QR tag related flow processing using video feed as the data source can be added here
-
-                // log("observing");
-
-                if ( arvideo ) {
-                    //log("observing");
-                    var data = Xflow.toImageData( arvideo );
+                if ( arVideo ) {
+                    var data = Xflow.toImageData( arVideo );
                     var width = data.width;
                     var height = data.height;
 
@@ -58,10 +53,17 @@
             } );
         }
 
+        function QRObserver() {
+            return new XML3DDataObserver( function ( records, observer ) {
+                var transforms = records[0].result.getValue( "transforms" );
+                //TODO: QR tag related processing using video feed as the data source can be added here
+            } );
+        }
+
         function initFlowAnalysers() {
             var id, xflowEl;
 
-            for(id in flowAnalysers){
+            for ( id in flowAnalysers ) {
                 xflowEl = document.querySelector( '#' + id );
                 flowAnalysers[id] = xflowEl ? xflowEl : false;
             }
@@ -72,17 +74,20 @@
             var id;
             for ( id in flowAnalysers ) {
                 if ( flowAnalysers[id] ) {
-                    log("ARManager: Found " + id +" XFlow element.");
-                    if ( id === 'QRAnalyser' ) {
-                        log("ARManager: Observing QR tags from the camera feed.");
+                    log( "ARManager: Found " + id + " XFlow element." );
+                    if ( id === 'ARBase' ) {
                         observers[id].observe( flowAnalysers[id], {names: ["arvideo"]} );
+                    }
+                    else if ( id === 'QRAnalyser' ) {
+                        log( "ARManager: Observing QR tags from the camera feed." );
+                        observers[id].observe( flowAnalysers[id], {names: ["transforms"]} );
                     }
                 }
             }
         }
 
         this.init = function () {
-            log("ARManager: Initialising...");
+            log( "ARManager: Initialising..." );
 
             background = document.getElementById( 'background' );
             bgCtx = background.getContext( '2d' );
@@ -90,7 +95,7 @@
             initFlowAnalysers();
             initObservers();
 
-            log("ARManager: Done.");
+            log( "ARManager: Done." );
 
         };
 
