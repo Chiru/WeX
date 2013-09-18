@@ -26,13 +26,13 @@
         var video, localVideoStream;
 
 
-        function noCameraFeedError() {
+        var noCameraFeedError = function () {
             log( "InputManager: ERROR: No camera feed available." );
-        }
+        };
 
-        function noUserMediaError() {
+        var noUserMediaError = function () {
             log( "InputManager: ERROR: No navigator.getUserMedia method available, check if your browser supports WebRTC." );
-        }
+        };
 
 
         this.init = function () {
@@ -58,7 +58,7 @@
         };
 
         this.hasGetUserMedia = function () {
-            return !!(navigator.getUserMedia);
+            return (navigator.getUserMedia);
         };
 
         this.getCameraFeed = function () {
@@ -68,7 +68,7 @@
                 navigator.getUserMedia( {video: true, audio: false}, function ( stream ) {
                     video.src = window.URL.createObjectURL( stream );
                     localVideoStream = stream;
-                    log( "InputManager: Got camera feed." );
+                    log( "InputManager: Got camera feed. url: " + video.src);
                     video.play();
 
                 }, noCameraFeedError );
