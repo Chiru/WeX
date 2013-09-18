@@ -69,8 +69,6 @@
         </data-->
                 </data>
 
-                <view position="0 0 70"/>
-
                 <!--data id="obj1AR"compute="transform = xflow.selectTransform(index, transforms)">
                     <data compute="visibility = xflow.selectBool(index, visibilities)">
                         <int name="index">0</int>
@@ -80,51 +78,26 @@
                 </data-->
 
 
-                <transform id="t_ar"/>
-                <transform id="t_local"/>
+                <transform id="t_twitter" rotation="1.000000 0.0000 0.0000 -45.00000" scale="10.0 10.0 10.0" translation="0.000000 0.000000 0.000000"/>
+                <!-- Viewpoint with connection to AR data
+                <view id="View" perspective="#arBase"/> -->
+                <view position="0 0 100" />
 
-                <group transform="#t_ar" shader="#obj1Shader">
-                    <group transform="#t_local">
-                        <group style="transform: rotateX(0deg) scale(100,100,100) translate3d(0px, 0px, -20px)">
-
-                            <!--group style="shader: url(#ex4_2_texShader)" transform="#myxfm">
-                                <mesh type="triangles">
-                                    <int name="index">0 1 2  1 2 3</int>
-                                    <float3 name="position">-1 -1 -5 1 -1 -5 -1 1 -5 1 1 -5</float3>
-                                    <float3 name="normal">0 0 1  0 0 1  0 0 1 0 0 1</float3>
-                                    <float2 name="texcoord">0.0 0.0 1.0 0.0 0.0 1.0 1.0 1.0</float2>
-                                </mesh>
-                            </group-->
-
-                            <group id="twitter" transform="assets/twitter.xml#t_twitter"
-                                   onclick="console.log('clicked twitter')"
-                                   onmouseover="console.log('Mouse on Twitter!')">
-                                <group shader="assets/twitter.xml#twitter_0">
-                                    <mesh src="assets/twitter.xml#mesh_twitter_twitter_0" type="triangles"/>
-                                </group>
-                                <group shader="assets/twitter.xml#twitter_1">
-                                    <mesh src="assets/twitter.xml#mesh_twitter_twitter_1" type="triangles"/>
-                                </group>
-                            </group>
-                        </group>
+                <!-- Hierarchy of the displayed shape -->
+                <group id="twitter" transform="#t_twitter" onclick="rotate(this)" >
+                    <group shader="assets/twitter.xml#twitter_0">
+                        <mesh src="assets/twitter.xml#mesh_twitter_twitter_0" type="triangles"/>
+                    </group>
+                    <group shader="assets/twitter.xml#twitter_1">
+                        <mesh src="assets/twitter.xml#mesh_twitter_twitter_1" type="triangles"/>
                     </group>
                 </group>
 
 
-                <lightshader id="light1" script="urn:xml3d:lightshader:point">
-                    <float3 name="intensity">1 1 1</float3>
-                    <float3 name="attenuation">1 0 0</float3>
-                    <bool name="castShadow">true</bool>
-                </lightshader>
-
-                <group style="transform: translate3d(0px, 10px, 0px)">
-                    <light shader="#light1"/>
-                </group>
-
-                <group style="transform: translate3d(5px, 10px, 0px)">
-                    <light shader="#light1"/>
-                </group>
-
+               <lightshader id="light1" script="urn:xml3d:lightshader:directional" >
+                   <float3 name="intensity" >0.5 0.5 0.5</float3>
+               </lightshader>
+               <light shader="#light1" />
 
             </xml3d>
         </div>
