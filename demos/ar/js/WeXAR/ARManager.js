@@ -72,7 +72,7 @@
             var id, xflowEl;
 
             for ( id in flowAnalysers ) {
-                xflowEl = document.querySelector( '#' + id );
+                xflowEl = document.getElementById( id );
                 flowAnalysers[id] = xflowEl ? xflowEl : false;
             }
 
