@@ -34,6 +34,12 @@ a new set of POI is retrieved.
  -> F3: JSON queries POI backend, and received responses
  -> F4: UI controls: manual GPS coordinates via text fields. Automatic GPS coordinates
     via GPS device. toggle automatic update on/off.
+    
+5. Read camera feed and pass it to ALVAR for marker detection.
+ -> F1: title and desciption
+ -> F2: real-time video feed from the camera
+ -> F3: shows the finded markers in JSON format
+ -> F4: UI controls: start marker detection, stop marker detection.
 
 Further down the road...
 
