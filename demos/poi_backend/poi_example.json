@@ -1,0 +1,18 @@
+{
+    "pois": {
+        "e2845369-57ed-47e6-822a-b09cc247fff5": {
+            "location": {
+		"lat": "65.0593340",
+		"lon": "25.4664775",
+		"type": "wsg84"
+	    },
+	    "geometry": "POINT(65.0593340 25.4664775)",
+	    "name": "Aulakahvila",
+	    "label": "Aulakahvila near Aula restaurant",
+	    "category": "cafe",
+	    "description": "Cafe at the University of Oulu",
+	    "url": "http://www.uniresta.fi/ravintolat/kaikki-ravintolat/linnanmaa/aularavintola.html"
+        }
+    },
+    "queryID": "testi_id"
+}
