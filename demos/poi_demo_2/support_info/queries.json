@@ -1,0 +1,6 @@
+*** paikkahaku ***
+ {lat: lat, lon: lng, 
+                radius: searchRadius, id: queryID} 
+				
+*** lisatietohaku ***
+{points: [uuid], id: queryID}				
