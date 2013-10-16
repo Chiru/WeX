@@ -1,0 +1,78 @@
+-----------------------------------
+PostGIS installation (Ubuntu 12.04)
+-----------------------------------
+
+OpenStreetMap has fairly good installation instructions for PostGIS:
+http://wiki.openstreetmap.org/wiki/PostGIS/Installation
+
+1. Install required packages
+sudo apt-get install postgresql postgresql-contrib postgis postgresql-9.1-postgis
+
+2. Create GIS database user:
+sudo -u postgres createuser gisuser
+
+3. Create database owned by that user
+sudo -u postgres createdb --encoding=UTF8 --owner=gisuser poidatabase
+
+4. Activate PostGIS on the created database:
+sudo -u postgres psql -d poidatabase -f /usr/share/postgresql/9.1/contrib/postgis-1.5/postgis.sql
+sudo -u postgres psql -d poidatabase -f /usr/share/postgresql/9.1/contrib/postgis-1.5/spatial_ref_sys.sql
+sudo -u postgres psql -d poidatabase -f /usr/share/postgresql/9.1/contrib/postgis_comments.sql
+sudo -u postgres psql -d poidatabase -c "GRANT SELECT ON spatial_ref_sys TO PUBLIC;"
+sudo -u postgres psql -d poidatabase -c "GRANT ALL ON geometry_columns TO gisuser;"
+
+...and enable UUID functions for that database
+sudo -u postgres psql -d poidatabase -c 'create extension "uuid-ossp";'
+
+5. Grant local access to the database
+Before you can access the database, you must edit PostgreSQL configuration to allow
+local unix socket connections (from the same computer where the database is running) without password. 
+
+!! NOTE!  FOR PRODUCTION-USE DEPLOYMENTS THIS METHOD IS NOT SECURE !!
+
+Edit the file /etc/postgresql/9.1/main/pg_hba.conf and change the following line:
+
+# "local" is for Unix domain socket connections only
+local   all             all                                     peer
+
+    ---> Change to --->
+
+# "local" is for Unix domain socket connections only
+local   all             all                                     trust
+
+6. Put some data to the database
+OpenStreetMap data can be imported into PostGIS using osm2pgsql (http://wiki.openstreetmap.org/wiki/Osm2pgsql)
+First install osm2pgsql:
+sudo apt-get install osm2pgsql
+
+Import data (e.g. OSM data for Finland from http://download.geofabrik.de/europe/finland.html)
+osm2pgsql -S /usr/share/osm2pgsql/default.style -d poidatabase -c -l -p finland_osm -U gisuser finland-latest.osm.bz2
+
+OSM data can then be converted toi POI GE data table using the sql code found in poi_backend/osm2_core_pois.sql
+
+7. Database administration
+pgAdminIII is a handy GUI for accessing and managing PostgreSQL databases...
+sudo apt-get install pgadmin3
+
+When connecting to the local database with pgadmin3, leave the "Host" field empty. This way a unix socket connection is made to locahost, instead of network connection.
+
+
+
+-------------------------------
+POI backend server installation
+-------------------------------
+
+1. Install package dependencies
+sudo apt-get install python-psycopg2 python-setuptools
+sudo easy_install autobahn
+
+2. Clone the POI backend code from GIT repository
+git clone foo://bar [TBD]
+
+3. Start the POI backend server
+./startPOIBackend [TBD]
+
+
+
+
+
