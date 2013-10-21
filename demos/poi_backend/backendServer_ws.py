@@ -1,6 +1,11 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
+#The WebSocket API is not currently actively developed, and therefore
+#it is deprecated. Please refer to backendServer_http.py for an up-to-date
+#HTTP-based RESTful API.
+
+
 import sys
 import httplib2
 import threading
@@ -48,7 +53,7 @@ if __name__ == '__main__':
 
     pdm.initializeDatabase()
 
-    factory = WebSocketServerFactory("ws://localhost:9000", debug=False)
+    factory = WebSocketServerFactory("ws://localhost:9002", debug=False)
     factory.protocol = MessageBasedHashServerProtocol
     factory.setProtocolOptions(allowHixie76=True)
     listenWS(factory)
