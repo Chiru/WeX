@@ -16,8 +16,6 @@
 ### FireFox Nightly (also FireFox and FireFox Nightly on Windows/Ubuntu):
 1. FireFox on Android limits available rendering contexts greatly, and XML3D uses several contexts. Rendering on several contexts is thus very difficult, utilising single contexts would be adviced.
  * Tested drawing video stream (a video file, but not web cam stream. Reason below.) on texture in webgl context and then drawing 3D object on top of the texture: WORKED!.
-2. Getting video stream for XML3D using an ObjectURL for the stream object seems to be bugging on FireFox Nightly. XML3D messes up the ObjectURI created from the stream object. On Chrome the URI is "blob:" prefixed, on FireFox it is with "mediastream:" prefix. XML3D is prepared only to the "blob:" prefix...
- * Further info: https://github.com/xml3d/xml3d.js/issues/10 <- Toni: Tried this, but no effect on FF. At least it doesn't throw any errors, but no video stream is visible either.
  
 
 ## TODO

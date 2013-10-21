@@ -1,7 +1,7 @@
 // For conditions of distribution and use, see copyright notice in LICENSE
 
 /**
- * @author Toni Dahl
+ * @author Toni Dahl, Antti Karhu
  */
 
 (function ( namespace, undefined ) {
@@ -33,11 +33,6 @@
 
     };
 
-    AR.setupAssetManager = function ( options ) {
-        return AR.Framework.createAssetManager( options );
-
-    };
-
     AR.setupARManager = function ( options ) {
         return AR.Framework.createARManager( options );
 
@@ -48,7 +43,10 @@
 
     };
 
+    AR.setupSceneManager = function ( options ) {
+        return AR.Framework.createSceneManager( options );
 
+    };
 
     AR.start = function () {
 

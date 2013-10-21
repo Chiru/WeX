@@ -113,7 +113,7 @@
             return hasGPS;
         };
 
-        this.getGPSLocation = function ( success, error, options ) {
+        this.getCurrentPosition = function ( success, error, options ) {
             if ( hasGPS ) {
                 navigator.geolocation.getCurrentPosition( success, error, options );
                 return true;
@@ -122,6 +122,12 @@
             return false;
 
         };
+        
+        this.watchPosition = function ( success, error, options ) {
+             if ( hasGPS ) {
+                 navigator.geolocation.watchPosition(success, error, options);
+             }
+        }
 
         this.getAvailableSensors = function () {
             return availableSensors;

@@ -22,7 +22,7 @@
 
             <canvas id="background" ></canvas>
 
-            <xml3d xmlns="http://www.xml3d.org/2009/xml3d" style="background: rgba(0,0,0,0);">
+            <xml3d xmlns="http://www.xml3d.org/2009/xml3d" class="xml3d" activeView="#View" style="background: rgba(0,0,0,0);">
 
                 <defs>
                     <!-- Shader for rendering video on a texture -->
@@ -46,11 +46,11 @@
                 <!-- Base flow operator for AR data, renders video stream on a background canvas
                 Directly base video stream related operations can be added here, such as flipping the stream -->
                 <data id="ARBase">
-                    <data compute="arvideo = xflow.flipVerticalImage(arvideo)">
+                    <!--data compute="arvideo = xflow.flipVerticalImage(arvideo)"> -->
                         <texture name="arvideo">
                             <video autoplay="false" src="../../resources/ar_marker.ogg"></video>
                         </texture>
-                    </data>
+                    <!--/data> -->
                 </data>
 
                 <!-- Additional operators can be added as needed, they utilise the texture stream from ARBase
@@ -77,26 +77,31 @@
 
                 </data-->
 
+                <transform id="dummy_trans0" rotation="1.000000 0.0000 0.0000 0.00000" scale="1.0 1.0 1.0" translation="0.000000 0.000000 -10.000000"/>
+                <transform id="dummy_trans1" rotation="1.000000 0.0000 0.0000 0.00000" scale="1.0 1.0 1.0" translation="0.000000 0.000000 -10.000000"/>
+                <transform id="dummy_trans2" rotation="1.000000 0.0000 0.0000 0.00000" scale="1.0 1.0 1.0" translation="0.000000 0.000000 -10.000000"/>
+                <transform id="dummy_trans3" rotation="1.000000 0.0000 0.0000 0.00000" scale="1.0 1.0 1.0" translation="0.000000 0.000000 -10.000000"/>
+                <transform id="dummy_trans4" rotation="1.000000 0.0000 0.0000 0.00000" scale="1.0 1.0 1.0" translation="0.000000 0.000000 -10.000000"/>
 
-                <transform id="t_twitter" rotation="1.000000 0.0000 0.0000 -45.00000" scale="10.0 10.0 10.0" translation="0.000000 0.000000 0.000000"/>
                 <!-- Viewpoint with connection to AR data
                 <view id="View" perspective="#arBase"/> -->
-                <view position="0 0 100" />
+                <view id = "View" position="0 0 0" />
 
-                <!-- Hierarchy of the displayed shape -->
-                <group id="twitter" transform="#t_twitter" onclick="rotate(this)" >
-                    <group shader="assets/twitter.xml#twitter_0">
-                        <mesh src="assets/twitter.xml#mesh_twitter_twitter_0" type="triangles"/>
-                    </group>
-                    <group shader="assets/twitter.xml#twitter_1">
-                        <mesh src="assets/twitter.xml#mesh_twitter_twitter_1" type="triangles"/>
-                    </group>
-                </group>
+	            <group id="button" transform="assets/button.xml#t_Cylinder" >
+		            <group shader="assets/button.xml#button_red" onclick= "toggleButton(this)">
+			            <mesh src="assets/button.xml#mesh_Cylinder_button_green" type="triangles"/>
+		            </group>
+		            <group shader="assets/button.xml#base_Steel_green">
+			            <mesh src="assets/button.xml#mesh_Cylinder_base_Steel_green" type="triangles"/>
+		            </group>
+	            </group>
 
 
-               <lightshader id="light1" script="urn:xml3d:lightshader:directional" >
-                   <float3 name="intensity" >0.5 0.5 0.5</float3>
-               </lightshader>
+               <lightshader id="light1" script="urn:xml3d:lightshader:directional">
+                    <float3 name="intensity">0.8 0.8 0.8</float3>
+                    <float3 name="attenuation">1 0 0</float3>
+                </lightshader>
+
                <light shader="#light1" />
 
             </xml3d>
@@ -104,9 +109,6 @@
     </div>
 
     <div id="footer">
-        <div id="buttons">
-            <p><button id="button1">Change Camera</button></p>
-        </div>
         <div id="infoPanel">
         </div>
         <div id="log"></div>
@@ -126,10 +128,9 @@
 <script type="text/javascript" src="js/WeXAR/phongvs.js"></script>
 <script type="text/javascript" src="js/WeXAR/Namespace.js"></script>
 <script type="text/javascript" src="js/WeXAR/Framework.js"></script>
-<script type="text/javascript" src="js/WeXAR/WSManager.js"></script>
+<script type="text/javascript" src="js/WeXAR/Communication.js"></script>
 <script type="text/javascript" src="js/WeXAR/InputManager.js"></script>
 <script type="text/javascript" src="js/WeXAR/SensorManager.js"></script>
-<script type="text/javascript" src="js/WeXAR/AssetManager.js"></script>
 <script type="text/javascript" src="js/WeXAR/SceneManager.js"></script>
 <script type="text/javascript" src="js/WeXAR/ARManager.js"></script>
 <script type="text/javascript" src="js/gui.js"></script>

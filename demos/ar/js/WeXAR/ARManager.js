@@ -40,23 +40,17 @@
                     imageData, i, dataLen, width, height;
 
                 if ( arVideo && bgCtx) {
-                    dataLen = arVideo.data.length;
-                    imageData = bgCtx.createImageData(arVideo.width, arVideo.height);
 
-                    for (i = dataLen; i--;) {
-                        imageData.data[i] = arVideo.data[i];
-                    }
-
-                    width = imageData.width;
-                    height = imageData.height;
+                    width = arVideo.width;
+                    height = arVideo.height;
 
                     // Setup background canvas
                     if ( width !== background.width || height !== background.height ) {
                         background.width = width;
                         background.height = height;
                     }
-
-                    bgCtx.putImageData( imageData, 0, 0 );
+                
+                    bgCtx.putImageData( arVideo, 0, 0 );
                 }
             } );
         }
