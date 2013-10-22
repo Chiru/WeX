@@ -1,0 +1,59 @@
+{
+    "$schema": "http://json-schema.org/draft-04/schema#",
+	"title": "POIS Query Response",
+    "description": "A product from Acme's catalog",
+	"type": "object",
+	"properties": {
+		"pois": {
+            "description": "Contains one object per a point of interest." +
+                "* The key of an object is the UUID of the object. *",
+			"type": "object",
+            "additionalProperties": {
+                "description": "This is an open-ended list where new " +
+                    "data types needed by business and application areas " +
+                    "are welcome. Each key must identify a data type " +
+                    "associated to POI. " +
+                    "The key format is <organization_id>_<specifier> ." +
+                    "Organization id 'fw' is reserved to Fi-Ware project.",
+                    "type": "object",
+                    "properties": {
+                        "fw_core": {
+                            "properties": {
+                                "name": {
+                                    "type": "string"
+                                },
+                                "category": {
+                                    "type": "string"
+                                }, 
+                                "location": {
+                                    "type": "object",
+                                    properties: {
+                                        "type": {
+                                            "description": "E.g. wsg84",
+                                            "type": "string",
+                                        }, 
+                                        "latitude": {
+                                            "description": "degrees north",
+                                            "type": "number",
+                                        },
+                                        "longitude": {
+                                            "description": "degrees east",
+                                            "type": "number",
+                                        },
+                                    }
+                                }, 
+                            }
+                        },
+                        "fw_xml3d": {
+                        },
+                        "additionalProperties": true
+                    }
+            }
+		},
+		"queryID": {
+            "description": "copied from query to response for identification",
+			"type": "string"
+		}
+    },
+    "required": ["pois"]
+}
