@@ -1,0 +1,79 @@
+REST API
+========
+
+Spatial search
+--------------
+
+baseURL/radial_search?lat=8.55&lon=9.33&radius=340&category=cafe&max_results=40&
+component=fw_core
+
+Search by UUIDs
+---------------
+
+baseURL/getpois?points=<uuid1>&points=<uuid2>
+
+Get supported components
+------------------------
+
+baseURL/getcomponents
+
+
+Websocket queries
+=================
+
+Spatial search
+--------------
+
+{
+    poi_query: {
+        radial_search: {
+            lat: <lat>, 
+            lon: <lng>, 
+            radius: <searchRadius>
+        }
+    
+        categories: [<cat1>, <cat2>,...],
+        
+        max_results: <max results>,   
+        
+        components: [ "fw_core", "fw_xml3d"],
+        queryid: "<query id>"
+    }
+}
+
+
+Search by UUIDs
+---------------
+
+{
+    poi_query: {
+        getpois: {
+           points:[<uuid1>, <uuid2>,...]
+        }
+        categories: [<cat1>, <cat2>,...],
+        
+        max_results: <max results>,   
+        
+        components: [ "fw_poi", "fw_xml3d"],
+        queryid: "<query id>"
+    }
+}
+
+Get supported components
+------------------------
+
+{
+    getcomponents: ""
+}
+
+Add POI
+-------
+
+{
+    add_poi: {
+    
+        whatever
+    
+    }
+}
+
