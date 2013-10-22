@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+    <!-- Style -->
+    <link rel="stylesheet" type="text/css" media="all" href="layout.css" />
+    <meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
+  
+    <title>Demo 5</title>
+</head>
+
+<body>
+<canvas style="display:none;"></canvas>
+
+<div id="container">
+    <div id="top">
+        <h1> Demo5 </h1>
+        <h2> Capturing camera feed </h2>
+    </div>
+
+    <div id="loadingScreen">
+        Loading Demo... <br />
+        <span id="progress"></span>
+    </div>
+
+    <div id="content-wrapper">
+        <div id="left">
+            <video autoplay="true" style="width:100%; height: 100%;"></video>
+
+
+        </div>
+        <div id="right">
+            <div id="log"></div>
+        </div>
+    </div>
+    <div id="footer">
+        <div id="buttons">
+            <button id="button1">Start Detection</button>
+        </div>
+    </div>
+</div>
+
+
+<!-- Libs etc. deps
+<script type="text/javascript" src="../../deps/js/xml3d.js"></script>-->
+
+<script type="text/javascript" src="../../../deps/js/Util.js"></script>
+<script type="text/javascript" src="../../../deps/js/Alvar_mobile.js"></script>
+<!-- Demo specific code -->
+<script type="text/javascript" src="demo5.js"></script>
+
+
+</body>
+</html>

@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd" >
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+    <!-- Style -->
+    <link rel="stylesheet" type="text/css" media="all" href="../layout.css"/>
+
+    <title>WeX AR Application</title>
+
+</head>
+
+<body>
+
+
+<div id="wrapper">
+    <div id="content">
+
+        <div id="renderArea">
+
+
+            <canvas id="background" ></canvas>
+
+            <xml3d xmlns="http://www.xml3d.org/2009/xml3d" class="xml3d" activeView="#View" style="background: rgba(0,0,0,0);">
+
+                <defs>
+                    <!-- shader for Object to be drawn on the video stream -->
+                    <shader id="obj1Shader" script="urn:xml3d:shader:phongvs">
+                        <float3 name="diffuseColor">1.0 0.4 0.2</float3>
+                        <float name="ambientIntensity">0.2</float>
+
+                        <!--data filter="keep(visibility)" src="#obj1AR"/-->
+                        <bool name="visibility">true</bool>
+                    </shader>
+                </defs>
+
+                <!-- Base flow operator for AR data, renders video stream on a background canvas
+                Directly base video stream related operations can be added here, such as flipping the stream -->
+                <data id="ARBase">
+                    <!--data compute="arvideo = xflow.flipVerticalImage(arvideo)"> -->
+                        <texture name="arvideo">
+                            <video autoplay="false"></video>
+                        </texture>
+                    <!--/data> -->
+                </data>
+
+                <!-- Additional operators can be added as needed, they utilise the texture stream from ARBase
+                This operator finds and analyses QR tags from the video stream. -->
+                <data id="QRAnalyser">
+                    <!--data compute="transforms, visibilities, perspective = xflar.detect(arvideo, markers, threshold)">
+                        <int name="markers">22 64</int>
+                        <data compute="threshold = xflar.getOtsuThreshold(histogram)">
+                            <data compute="histogram = xflip.createNormalizedHistogram(grvideo,channel)">
+                                <int name="channel">0</int>
+                                <data compute="grvideo = xflip.grayscale(arvideo)"-->
+                    <data src="#ARBase"/>
+                    <!--/data>
+                </data>
+            </data>
+        </data-->
+                </data>
+
+                <transform id="dummy_trans0" rotation="1.000000 0.0000 0.0000 0.00000" scale="1.0 1.0 1.0" translation="0.000000 0.000000 -10.000000"/>
+                <transform id="dummy_trans1" rotation="1.000000 0.0000 0.0000 0.00000" scale="1.0 1.0 1.0" translation="0.000000 0.000000 -10.000000"/>
+                <transform id="dummy_trans2" rotation="1.000000 0.0000 0.0000 0.00000" scale="1.0 1.0 1.0" translation="0.000000 0.000000 -10.000000"/>
+                <transform id="dummy_trans3" rotation="1.000000 0.0000 0.0000 0.00000" scale="1.0 1.0 1.0" translation="0.000000 0.000000 -10.000000"/>
+                <transform id="dummy_trans4" rotation="1.000000 0.0000 0.0000 0.00000" scale="1.0 1.0 1.0" translation="0.000000 0.000000 -10.000000"/>
+
+                <!-- Viewpoint with connection to AR data
+                <view id="View" perspective="#arBase"/> -->
+                <view id = "View" position="0 0 0" />
+
+	            <group id="button" transform="../assets/button.xml#t_Cylinder" >
+		            <group shader="../assets/button.xml#button_red" onclick= "toggleButton(this)">
+			            <mesh src="../assets/button.xml#mesh_Cylinder_button_green" type="triangles"/>
+		            </group>
+		            <group shader="../assets/button.xml#base_Steel_green">
+			            <mesh src="../assets/button.xml#mesh_Cylinder_base_Steel_green" type="triangles"/>
+		            </group>
+	            </group>
+
+
+               <lightshader id="light1" script="urn:xml3d:lightshader:directional">
+                    <float3 name="intensity">0.8 0.8 0.8</float3>
+                    <float3 name="attenuation">1 0 0</float3>
+                </lightshader>
+
+               <light shader="#light1" />
+
+            </xml3d>
+        </div>
+    </div>
+
+    <div id="footer">
+        <div id="infoPanel">
+        </div>
+        <div id="log"></div>
+    </div>
+
+</div>
+
+<!-- Dependencies -->
+<script type="text/javascript" src="../../../deps/js/xml3d.js"></script>
+<script type="text/javascript" src="../../../deps/js/gl-matrix.js"></script>
+<script type="text/javascript" src="../../../deps/js/Signals.js"></script>
+<script type="text/javascript" src="../../../deps/js/Util.js"></script>
+
+<!-- Application Scrips -->
+<script type="text/javascript" src="../../../ar/phongvs.js"></script>
+<script type="text/javascript" src="../../../ar/Namespace.js"></script>
+<script type="text/javascript" src="../../../ar/Framework.js"></script>
+<script type="text/javascript" src="../../../ar/Communication.js"></script>
+<script type="text/javascript" src="../../../ar/InputManager.js"></script>
+<script type="text/javascript" src="../../../ar/SensorManager.js"></script>
+<script type="text/javascript" src="../../../ar/SceneManager.js"></script>
+<script type="text/javascript" src="../../../ar/ARManager.js"></script>
+<script type="text/javascript" src="../gui.js"></script>
+
+
+<script type="text/javascript" src="main.js"></script>
+
+
+</body>
+
+</html>
