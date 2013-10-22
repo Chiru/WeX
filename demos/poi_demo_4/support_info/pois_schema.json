@@ -1,0 +1,29 @@
+{
+    "$schema": "http://json-schema.org/draft-04/schema#",
+	"title": "POIS Query Response",
+    "description": "A product from Acme's catalog",
+	"type": "object",
+	"properties": {
+		"pois": {
+            "description": "Contains one object per a point of interest." +
+                "Key of an object is the UUID of the object.",
+			"type": "object",
+            "properties": {
+            }
+		},
+		"queryID": {
+            "description": "copied from query to response for identification",
+			"type": "string"
+		}
+    },
+    "required": ["pois"]
+}
+----
+		"age": {
+			"description": "Age in years",
+			"type": "integer",
+			"minimum": 0
+		}
+	},
+	"required": ["firstName", "lastName"]
+}

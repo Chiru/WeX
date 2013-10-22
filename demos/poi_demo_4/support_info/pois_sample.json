@@ -1,0 +1,24 @@
+{
+  "pois": {
+    "6be4752b-fe6f-4c3a-98c1-13e5ccf01721": {
+      "fw_core": {
+        "category": "cafe", 
+        "location": {
+          "latitude": 65.059334, 
+          "type": "wsg84", 
+          "longitude": 25.4664775
+        }, 
+        "name": "Aulakahvila"
+      }
+    }, 
+    "473de74a-b3e3-46da-a81f-1aa2f4134482": {
+    "fw_core": {
+      "category": "cafe", 
+      "location": {
+        "latitude": 65.0579893, 
+        "type": "wsg84", 
+        "longitude": 25.4684693
+      }, 
+      "name": "Datania"
+    }, 
+    "7c32c67d-cf00-4d11-9acc-2471141e03b9": {"fw_core": {"category": "restaurant", "url": "https://dl.dropboxusercontent.com/u/17661643/teapot.xml", "location": {"latitude": 65.061049, "type": "wsg84", "longitude": 25.4680896}, "name": "Snellmania"}}, "4c6754d9-0bb1-4962-b604-6f3fcc08a9ec": {"fw_core": {"category": "restaurant", "location": {"latitude": 65.0581807, "type": "wsg84", "longitude": 25.4667163}, "name": "Discus"}}}, "queryID": "foobar"}
