@@ -58,7 +58,9 @@ function str2html (rawstr) {
         oldMapCenter,
         CENTER_CHANGED_THRESHOLD = 130,
         BACKEND_ADDRESS_POI = "http://130.231.12.82:8080/"
-        BACKEND_ADDRESS_3D = "http://130.231.12.82:8081/",
+//        BACKEND_ADDRESS_POI = "http://chiru.cie.fi:8080/",
+        BACKEND_ADDRESS_3D = "http://130.231.12.82:8085/",
+//        BACKEND_ADDRESS_3D = "http://chiru.cie.fi:8085/",
 
         searchRadius = 300;
 
@@ -82,7 +84,7 @@ function str2html (rawstr) {
 
         document.querySelector( '#button1' ).onclick = locate;
         document.querySelector( '#button2' ).onclick = codeAddress;
-        document.querySelector( '#button4' ).onclick = updateMap;
+ //       document.querySelector( '#button4' ).onclick = updateMap;
 
         geocoder = new google.maps.Geocoder();
 
@@ -130,7 +132,7 @@ function str2html (rawstr) {
                 searchRadius = 50;
             }
 
-            log( "Zoom level: " + zoomLevel + " Search radius: " + 
+            console.log( "Zoom level: " + zoomLevel + " Search radius: " + 
                     searchRadius );
         } );
 
@@ -231,9 +233,8 @@ function str2html (rawstr) {
             lng = center.lng();
         }
 
-        log( "Doing search from OpenPOIS database, this can take several " + 
-                "minutes." );
-        log( "Map center: lat=" + lat + " lon=" + lng );
+        console.log( "Doing search from " + BACKEND_ADDRESS_POI);
+        console.log( "Map center: lat=" + lat + " lon=" + lng );
         restQueryURL = BACKEND_ADDRESS_POI + "radial_search?" +
            "lat=" + lat + "&lon=" + lng + "&query_id=" + queryID + "&radius=" +
             searchRadius + "&component=fw_core";
@@ -248,7 +249,7 @@ function str2html (rawstr) {
                     parsePoiData(json);
                 }
                 else if (miwi_poi_xhr.status === 404) { 
-                    log("failed: " + miwi_poi_xhr.responseText);
+                    console.log("failed: " + miwi_poi_xhr.responseText);
                 }
             }
         }
@@ -317,7 +318,7 @@ function str2html (rawstr) {
     // Geolocation
     function locate() {
         if ( navigator.geolocation ) {
-            log( "Getting current position..." );
+            console.log( "Getting current position..." );
             navigator.geolocation.getCurrentPosition( handleFoundLocation, 
                 function () {
                     handleNoGeolocation( true );
@@ -336,7 +337,7 @@ function str2html (rawstr) {
         // console.log(pos)
         map.setCenter( pos );
 
-        log( "Location found." );
+        console.log( "Location found." );
     }
 
     function handleNoGeolocation( errorFlag ) {
@@ -350,14 +351,14 @@ function str2html (rawstr) {
     }
 
     function codeAddress() {
-        log( "Finding address/coordinate..." );
+        console.log( "Finding address/coordinate..." );
 
         var address = document.querySelector( '#address' ).value;
         geocoder.geocode( { 'address': address}, function ( results, status ) {
             if ( status === google.maps.GeocoderStatus.OK ) {
                 map.setCenter( results[0].geometry.location );
                 updateMarker( results[0].geometry.location, positionMarker );
-                log( "Location found." );
+                console.log( "Location found." );
             } else {
                 alert( 'Geocode was not successful: ' + status );
             }
@@ -373,7 +374,7 @@ function str2html (rawstr) {
             return;
         }
 
-        log( "Parsing POI data..." );
+        console.log( "Parsing POI data..." );
 
         if ( !data.hasOwnProperty( "pois" ) ) {
             log( "Error: Invalid POI data." );
@@ -409,8 +410,8 @@ function str2html (rawstr) {
             searchPoint['ready'] = true;
         }
 
-        log( "Ready." );
-        log( counter + " pois added on the map." );
+        console.log( "Ready." );
+        console.log( counter + " pois added on the map." );
 
         console.log( poiStorage );
     }
@@ -431,37 +432,47 @@ function str2html (rawstr) {
     }
 
     function POI_onClick(poiMarker, uuid) {
-        var data, name, label, category, icon_string, description, link;
+        var data, name, label, category, icon_string, description, url,
+            thumbnail, found_label, found_thumbnail;
  
 console.log("uuid: " + uuid);
         
         data = miwi_poi_pois[uuid] || {"label": "No information available"};
         name = data["name"] || "A Point of Interest";
         category = data["category"] || "";
+        thumbnail = data["thumbnail"] || "";
         label = data["label"] || "";
         description = data["description"] || "";
         url = data["url"] || "";
         // Default icon is star !
         icon_string = miwi_poi_icon_strings[category] || "star";
-
+        found_label = (label != "");
+        found_thumbnail = (thumbnail != "");
         //map.setZoom(15);
-        poiWindow.content = '<div id="infoTitle">' + str2html(name) + '</div>' +
-                '<div id="infoText">' + 
-                ((label != "") ? ("<p>" + str2html(label) + "</p>") : "") +
+        poiWindow.content = '<div id="infoTitle">' + str2html(name) + 
+                ' &#32;</div>' +
+                '<div id="infoText">' +
+                ((found_thumbnail || found_label) ? "<p>" : "") + 
+                  (found_thumbnail ? ('<img src="' + 
+                      str2html(thumbnail) + '" height="120px"/>') : "") +
+                  ((found_thumbnail && found_label) ? "<br/>" : "") + 
+                  (found_label ? str2html(label) : "") +
+                ((found_thumbnail || found_label) ? "</p>" : "") + 
                 ((description != "") ? 
                     ("<p>" + str2html(description) + "</p>") : "") +
                 ((url != "") ?
                     ("<p><a target=\"_blank\" href=\"" + str2html(url) + "\">" +
                     str2html(url) + "</a></p>") : "") +
+                
                 '</div>';
 	
-//console.log(poiWindow.content);
+console.log(poiWindow.content);
         poiWindow.open( map, poiMarker );
         
         miwi_poi_xml3d_requests[uuid] = {lon: data.location.longitude, 
                 lat: data.location.lat};
-        restQueryURL = BACKEND_ADDRESS_3D + "?points=" + uuid +
-            "&id=" + queryID;
+        restQueryURL = BACKEND_ADDRESS_3D + "get_pois?poi_id=" + uuid +
+            "&query_id=" + queryID;
         
         console.log("3D restQueryURL: " + restQueryURL);
         miwi_3d_xhr = new XMLHttpRequest();
@@ -549,14 +560,31 @@ console.log("uuid: " + uuid);
     function parse3DData( data ) {
 
         var counter = 0, jsonData, poiData, pos, i, uuid, pois,
-            contents, locations, location, searchPoint;
+            contents, locations, location, searchPoint, el;
 
         if ( !data ) {
             return;
         }
 
-        log( "Parsing 3D data..." );
+        console.log( "Parsing 3D data..." );
+//        log("Response from server:\n" + JSON.stringify(data, null, "  "));
+        el = document.getElementById( "log" );
+                if ( el !== null ) {
+                    el.innerHTML += "<br/><pre>" + 
+                    str2html(JSON.stringify(data, null, "  ")) +
+                    "</pre><br/>";
+                    /*
+                    for(var tag in el) {
+                      console.log(tag);
+                    }
+                    */
+                    var d = el.scrollHeight - el.clientHeight;
+                    el.scrollTop = d;
+//                    el.setAttribute("scrollTop",d);
+                };
+                
 
+/*
         if ( !data.hasOwnProperty( "xml3d_models" ) ) {
             log( "Error: Invalid 3D data." );
             return;
@@ -573,12 +601,12 @@ console.log("uuid: " + uuid);
                 show3DOnMap(req.lon, req.lat, poi3DData);
             }
         }
-
+*/
     }
 
     function show3DOnMap(lon, lat, poi3DData) {
-        console.log("show3DOnMap: lon: " + lon + " lat: " + lat + 
-            " poi3DData: " + JSON.stringify(poi3DData));
+        log("show3DOnMap: lon: " + lon + " lat: " + lat + 
+            " poi3DData: " + JSON.stringify(poi3DData, null, "2"));
     }
     
     //window.onload = loadScript;
