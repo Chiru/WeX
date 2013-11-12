@@ -57,12 +57,13 @@ function str2html (rawstr) {
         centerChangedTimeout,
         oldMapCenter,
         CENTER_CHANGED_THRESHOLD = 130,
-        BACKEND_ADDRESS_POI = "http://130.231.12.82:8080/"
-//        BACKEND_ADDRESS_POI = "http://chiru.cie.fi:8080/",
-        BACKEND_ADDRESS_3D = "http://130.231.12.82:8085/",
-//        BACKEND_ADDRESS_3D = "http://chiru.cie.fi:8085/",
+//        BACKEND_ADDRESS_POI = "http://130.231.12.82:8080/"
+        BACKEND_ADDRESS_POI = "http://chiru.cie.fi:8080/",
+//        BACKEND_ADDRESS_3D = "http://130.231.12.82:8085/",
+        BACKEND_ADDRESS_3D = "http://chiru.cie.fi:8085/",
 
-        searchRadius = 300;
+        searchRadius = 600;
+        searchRadiusScaling = 2.0;
 
     window.WebSocket = (window.WebSocket || window.MozWebSocket);
 
@@ -131,7 +132,7 @@ function str2html (rawstr) {
             } else if ( zoomLevel >= 20 ) {
                 searchRadius = 50;
             }
-
+            searchRadius *= searchRadiusScaling; // Scaling factor
             console.log( "Zoom level: " + zoomLevel + " Search radius: " + 
                     searchRadius );
         } );
@@ -262,7 +263,7 @@ function str2html (rawstr) {
         miwi_poi_xhr.send();
         searchPoint = new google.maps.LatLng( lat, lng );
 
-
+/*  // Circle removed
         var circle = new google.maps.Circle( {
             strokeWeight: 1,
             fillColor: '#FF0000',
@@ -271,7 +272,7 @@ function str2html (rawstr) {
             center: searchPoint,
             map: map
         } );
-
+*/
         if ( !oldSearchPoints.hasOwnProperty( searchRadius + '' ) ) {
             oldSearchPoints[searchRadius + ''] = [];
         }
