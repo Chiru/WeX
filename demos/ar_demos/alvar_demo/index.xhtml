@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd" >
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+    <!-- Style -->
+    <link rel="stylesheet" type="text/css" media="all" href="../layout.css"/>
+
+    <title>WeX AR Application</title>
+
+</head>
+
+<body>
+
+<div id="wrapper">
+    <div id="content">
+
+        <div id="renderArea">
+
+            <canvas id="background" ></canvas>
+
+            <xml3d id="xml3dContent" xmlns="http://www.xml3d.org/2009/xml3d" activeView="#View" style="background: rgba(0,0,0,0);">
+
+
+                 <defs>
+                    <!-- shader for Object to be drawn on the video stream -->
+                <shader id="obj1Shader" script="urn:xml3d:shader:phong">
+                     <float3 name="diffuseColor">
+				        0.5000 0.65000 0.500000
+			        </float3>
+			        <float3 name="specularColor">
+				        0.0000 0.80000 0.0000
+			        </float3>
+			        <float name="shininess">
+				        1.0
+			        </float>
+			        <float name="ambientIntensity">
+				        0.5
+			        </float>
+                </shader>
+                
+                 <shader id="obj2Shader" script="urn:xml3d:shader:phong">
+                     <float3 name="diffuseColor">
+				        0.8000 0.2000 0.200000
+			        </float3>
+			        <float3 name="specularColor">
+				        0.8000 0.20000 0.2000
+			        </float3>
+			        <float name="shininess">
+				        0.2
+			        </float>
+			        <float name="ambientIntensity">
+				        0.5
+				    </float>
+                </shader>
+                
+                </defs>
+
+                <data id="ARBase" compute="transforms, visibilities, perspective = alvar-mobile-xflow.detect(arvideo, markers, noflip)">
+                    <bool name="noflip">true</bool>
+                    <int name="markers">32</int>
+                    <texture name="arvideo">
+                        <video autoplay="false"></video>
+                    </texture>
+                </data>
+                 
+                <!-- Viewpoint with connection to AR data -->
+                <view id="View" perspective="#ARBase" />
+                 
+                <!-- Object 1: -->
+                <!-- Extract visibility and transformation -->
+                <data id="MarkerAnalyser" compute="transform = alvar-mobile-xflow.selectTransform(index, transforms)">
+                    <data compute="visibility = xflow.selectBool(index, visibilities)">
+                        <int name="index">0</int>
+                        <data src="#ARBase"/>
+                    </data>
+                </data>
+
+                <transform id="t_teapot_ar" scale="0.02000000 0.02000000 0.02000000" />
+                <group id = "teapot" transform="#t_teapot_ar" shader="#obj1Shader" >
+                    <group style="transform: rotateX(90deg)">
+                        <mesh type="triangles" src="../assets/teapot.xml#mesh" />
+                    </group>
+                </group>
+               
+               <lightshader id="light1" script="urn:xml3d:lightshader:directional">
+                    <float3 name="intensity">0.8 0.8 0.8</float3>
+                </lightshader>
+
+               <transform id="t_light" translation="0.000000 50.000000 0.000000"/>
+               <group transform="#t_light">
+                   <light shader="#light1" />
+               </group>
+               
+               <transform id="t_coffee" scale="0.300000 0.3000000 0.300000"/>
+               <group id="coffee" transform="#t_coffee" visible="false">
+                   <group style="transform: rotateX(90deg) translate3d(0, 2.6, 0)">
+		               <group shader="../assets/coffee.xml#Coffee">
+			               <mesh src="../assets/coffee.xml#mesh_Icosphere_Coffee" type="triangles"/>
+		               </group>
+		           </group>
+	           </group>
+	           
+            </xml3d>
+        </div>
+    </div>
+
+    <div id="footer">
+        <div id="infoPanel">
+        </div>
+        <div id="log"></div>
+    </div>
+
+</div>
+
+<!-- Dependencies -->
+<script type="text/javascript" src="../../../deps/js/xml3d.js"></script>
+<script type="text/javascript" src="../../../deps/js/jquery.js"></script>
+<script type="text/javascript" src="../../../deps/js/gl-matrix.js"></script>
+<script type="text/javascript" src="../../../deps/js/Signals.js"></script>
+<script type="text/javascript" src="../../../deps/js/Util.js"></script>
+<script type="text/javascript" src="../../../deps/js/alvar-mobile-emscripten.js"></script>
+
+<!-- Application Scrips -->
+<script type="text/javascript" src="../../../ar/phongvs.js"></script>
+<script type="text/javascript" src="../../../ar/Namespace.js"></script>
+<script type="text/javascript" src="../../../ar/Framework.js"></script>
+<script type="text/javascript" src="../../../ar/Communication.js"></script>
+<script type="text/javascript" src="../../../ar/SensorManager.js"></script>
+<script type="text/javascript" src="../../../ar/SceneManager.js"></script>
+<script type="text/javascript" src="../../../ar/xAlvar.js"></script>
+<script type="text/javascript" src="../../../ar/ARManager.js"></script>
+<script type="text/javascript" src="../gui.js"></script>
+
+
+<script type="text/javascript" src="main.js"></script>
+
+
+</body>
+
+</html>
