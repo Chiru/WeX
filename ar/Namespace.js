@@ -1,9 +1,5 @@
 // For conditions of distribution and use, see copyright notice in LICENSE
 
-/**
- * @author Toni Dahl, Antti Karhu
- */
-
 (function ( namespace, undefined ) {
     "use strict";
 
@@ -18,18 +14,13 @@
 
 
     //XML3D Settings
-    XML3D.debug.loglevel = 3;
+    XML3D.debug.loglevel = 0;
 
 
     // Top Level API
 
     AR.setupSensors = function ( options ) {
         return AR.Framework.createSensorManager( options );
-
-    };
-
-    AR.setupInputManager = function ( options ) {
-        return AR.Framework.createInputManager( options );
 
     };
 
@@ -51,7 +42,6 @@
     AR.start = function () {
 
     };
-
 
     util.log( "Loading " + AR.NAME + " " + AR.VERSION + " application..." );
 

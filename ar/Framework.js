@@ -1,9 +1,5 @@
 // For conditions of distribution and use, see copyright notice in LICENSE
 
-/**
- * @author Toni Dahl
- */
-
 (function ( namespace, undefined ) {
     "use strict";
 
@@ -16,11 +12,10 @@
     Framework = AR.Framework = {
 
         sensorManager: null, // Sensor manager for creating sensor listeners
-        inputManager: null, // Manages video/audio input streams from device camera/microphone
         connection: null, // Communication layer for communication with remote services.
-        arManager: null, // AR manager is responsible for creating observers for AR related XFlow elements
+        arManager: null, //AR manager is responsible for creating observers for AR related XFlow elements. Also, manages video input stream from device camera
         sceneManager: null,
-        options: {connection: {}, sensors: {}, input: {}, ar: {}, scene: {}},
+        options: {connection: {}, sensors: {}, ar: {}, scene: {}},
 
 
         // API
@@ -41,11 +36,6 @@
         createSensorManager: function ( options ) {
             this.sensorManager = new AR.SensorManager( this, options );
             return this.sensorManager;
-        },
-
-        createInputManager: function ( options ) {
-            this.inputManager = new AR.InputManager( this, options );
-            return this.inputManager;
         },
 
         createARManager: function ( options ) {
