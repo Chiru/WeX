@@ -1,10 +1,5 @@
 // For conditions of distribution and use, see copyright notice in LICENSE
 
-/**
- * @author Toni Dahl
- */
-
-
 (function ( namespace, undefined ) {
     "use strict";
 
@@ -115,7 +110,7 @@
 
         this.getCurrentPosition = function ( success, error, options ) {
             if ( hasGPS ) {
-                navigator.geolocation.getCurrentPosition( success, error, options );
+                navigator.geolocation.getCurrentPosition( success, error, options);
                 return true;
             }
 
