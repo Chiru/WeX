@@ -1,58 +1,74 @@
-// Application configuration
-
-
 (function ( namespace, undefined ) {
     var log = namespace.Util.log, AR = namespace.AR,
-        sensorManager, inputManager, communication, ARManager, sceneManager;
+        sensorManager, communication, ARManager, sceneManager;
 
-    var currentLoc, gpsPoints = [];
-
+    var orientationListener, gpsPoints = [], remoteControls = {};
+    var miwi_ar_pois = {}; // ["UUID": {<POI data>},...]
+    
+    //hard coded gps point. If there is no POIs found using real gps coordinates, comment the sensorManager.getCurrentPosition(gpsHandler); line and use these coordinates.
+    var currentLoc = {
+        'latitude' : 65.06095172267227,
+        'longitude' : 25.468234419822693
+    }
+    
     window.onload = function () {
 
-        var orientationListener, gpsPosition;
-
+        document.querySelector( '#button_res' ).onclick = get_res;
+        document.querySelector( '#button_caf' ).onclick = get_caf;
+        document.querySelector( '#button_rdv' ).onclick = get_rdv;
+        document.querySelector( '#button_sen' ).onclick = get_sen;
+            
         sensorManager = AR.setupSensors();
-        inputManager = AR.setupInputManager();
         communication = AR.setupConnection();
         ARManager = AR.setupARManager();
         sceneManager = AR.setupSceneManager();
 
         orientationListener = sensorManager.listenSensor( 'orientation' );
-        gpsPosition = sensorManager.getCurrentPosition(gpsHandler);
-        //gpsPosition = sensorManager.watchPosition(function(e) {sceneManager.translateCamera(currentLoc, e.coords); currentLoc = e.coords;  log("------------lat: " + e.coords.latitude + "  lon: " + e.coords.longitude);});  
-        communication.addRemoteService("corePOI", null, "http://130.231.12.82:8080");
-        communication.addRemoteService("3DPOI", null, "http://130.231.12.82:8081");
+        sensorManager.getCurrentPosition(gpsHandler);
 
+        communication.addRemoteService("remoteDevicePOI", null, "http://chiru.cie.fi:8085");
         AR.GUI.init();
         AR.GUI.observeOrientation(orientationListener.signal);
         orientationListener.signal.add(sceneManager.setCameraOrientation);
-
     };
 
-    function gpsHandler (position) {
-        
-        currentLoc = position.coords;
-        setTimeout(function(){getPOIs(currentLoc);},3000);
-        //getPOIs(currentLoc);
+    function get_res() {
+        getPOIsByCategory(currentLoc, "restaurant");
     }
 
-    function getPOIs(gpsCoordinates) {
+    function get_caf() {
+        getPOIsByCategory(currentLoc, "cafe");
+    }
+
+    function get_rdv() {
+        getPOIsByCategory(currentLoc, "remote_device");
+    }
+
+    function get_sen() {
+        getPOIsByCategory(currentLoc, "sensor");
+    }
+   
+    function gpsHandler (position) {
+        currentLoc = position.coords;
+    }
+    
+    function getPOIsByCategory(gpsCoordinates, category) {
         var result;
         var restOptions = {
             'function' : "radial_search",
             'lat' : gpsCoordinates.latitude,
             'lon' : gpsCoordinates.longitude,
+            'category' : category,
             'query_id' : "testi_id",
-            'radius' : 150 
+            'radius' : 1500 
         }
-        
-        communication.queryData("corePOI", restOptions, handleCorePoi, null);
+        log("Requesting POIs...");
+        communication.queryData("remoteDevicePOI", restOptions, handlePoi, null);   
     }
     
-    function handleCorePoi( data ) {
-
-        var uuid, pois, poiData, coreComponent, location;
-
+     function handlePoi(data) {
+    
+        var uuid, pois, poiData;
         if ( !data ) {
             return null;
         }
@@ -66,118 +82,84 @@
 
         pois = data['pois'];
 
+        AR.GUI.clearData();
         for ( uuid in pois ) {
+            //console.log("got " + uuid);
             poiData = pois[uuid];
             
+            miwi_ar_pois[uuid] = poiData;
+            
             if ( poiData.hasOwnProperty( "fw_core" )) {
-                coreComponent = poiData['fw_core'];
-            
-                if ( coreComponent.hasOwnProperty( "location" )) {
-                    location = coreComponent['location'];
-
-                    if ( location['type'] === 'wsg84' ) {
-                    
-                        gpsPoints[uuid] = location;
-                    }
-                }
-            }
-        }
-        
-        if(gpsPoints) {
-            var restOptions = {};
-            
-            for(uuid in gpsPoints) {
-                if(gpsPoints.hasOwnProperty(uuid)) {
-                    restOptions['points'] = Object.keys(gpsPoints);
-                }
+                handleCoreComponent( poiData['fw_core'], uuid );
+                
             }
             
-            restOptions['id'] = "testi_id";
-            communication.queryData("3DPOI", restOptions, handle3DPoi, null);
+            if(poiData.hasOwnProperty( "fw_xml3d" )) {
+                handleXml3dComponent( poiData['fw_xml3d'], uuid );
+            }
+            
+            if(poiData.hasOwnProperty( "fw_remote_device" )) {
+                handleRemoteDeviceComponent(poiData['fw_remote_device'], poiData['fw_xml3d']['model_id']);
+            }
+            
+            if(poiData.hasOwnProperty( "fw_rvi" )) {
+                AR.GUI.showData(miwi_ar_pois[uuid], uuid);
+            }
         }
     }
     
-    function handle3DPoi(data) {
-        
-        var uuid, xml3dModels, entities, entity, xml3dGroup, subGroup, shader_mesh_groups, xml3dMesh, group, shader, meshes, mesh;
-        if ( !data ) {
-            return null;
-        }
+    function handleCoreComponent(data , uuid) {
 
-        log( "Parsing 3D POI data..." );
+        var location;
 
-        if ( !data.hasOwnProperty( "xml3d_models" ) ) {
-            log( "Error: Invalid xml3d data." );
-            return null;
-        }
+        if ( data.hasOwnProperty( "location" )) {
+            location = data['location'];
 
-        xml3dModels = data['xml3d_models'];
-        //log( "xml3dModels: " + data['xml3d_models']);
-        var i = 0;
-        for ( uuid in xml3dModels ) {
-        
-            entities = xml3dModels[uuid];
-            
-            //log( "uuid: " + uuid);
-            if(Object.keys(entities).length === 0)
-                continue;
-                
-            //log( "xml3dModelData: " + entities);    
-            
-            for(entity in entities) {
-                xml3dGroup = XML3D.createElement("group");
-                //log( "entity: " + entities[entity]);
-                 
-                if( entities[entity].hasOwnProperty( "transform" )) {
-                    //log( "transform: " + entities[entity]['transform']);
-                    xml3dGroup.setAttribute("transform", "#dummy_trans" + i);
-                    i+=1;
-                    //xml3dGroup.setAttribute("transform", entities[entity]['transform']);
-                }
-            
-                if( entities[entity].hasOwnProperty( "shader_mesh_groups" )) {
-                    shader_mesh_groups = entities[entity]['shader_mesh_groups'];
-                    
-                    for ( group in  shader_mesh_groups ) {
-                        subGroup = XML3D.createElement("group");
-                        
-                        if(shader_mesh_groups[group].hasOwnProperty( "shader" )) {
-                        
-                            //log( "shader: " + shader_mesh_groups[group]['shader']);
-                            subGroup.setAttribute("shader", shader_mesh_groups[group]['shader']);
-                        }
-                        if( shader_mesh_groups[group].hasOwnProperty( "meshes" )) {
-                            meshes = shader_mesh_groups[group]['meshes'];
-                        
-                            for ( mesh in  meshes ) {
-                                xml3dMesh = XML3D.createElement("mesh");
-                                //log( "mesh: " + meshes[mesh]);
-                                xml3dMesh.setAttribute("src", meshes[mesh]);
-                                subGroup.appendChild(xml3dMesh);
-                            }  
-                        }
-                        xml3dGroup.appendChild(subGroup);
-                    }
-                }
-                if(xml3dGroup) {
-                    document.querySelector("xml3d").appendChild(xml3dGroup);
-                    sceneManager.setPositionFromGeoLocation(currentLoc, gpsPoints[uuid], xml3dGroup);
-                }
+            if ( location['type'] === 'wsg84' ) {
+                gpsPoints[uuid] = location;
             }
         }
     }
-    this.toggleButton = function(xml3dElement) {
+    
+    function handleRemoteDeviceComponent(data , modelID) {
+        
+        var controls;
+        if(data.hasOwnProperty('control_urls')) {
+            controls = data['control_urls'];
+            remoteControls['on'] = controls['set_state_on_url'];
+            remoteControls['off'] = controls['set_state_off_url'];
+            remoteControls['state'] = controls['get_state_url'];
+            
+            var xml3dElement = sceneManager.getObjectByID(modelID);
+            xml3dElement.addEventListener("click", function(){toggleButton(xml3dElement.childNodes[0]);}); 
+        }
+    }
+    
+    function handleXml3dComponent(data, uuid) {
+    
+        sceneManager.addToScene(data);
+        if(data.hasOwnProperty( "model" )) {
+            var xml3dElement = document.getElementById(data['model_id']);
+            sceneManager.setPositionFromGeoLocation(currentLoc, gpsPoints[uuid], xml3dElement);
+            sceneManager.addObjetcToBillboardSet(xml3dElement);
+            xml3dElement.addEventListener("click", function(){
+                AR.GUI.clearData();AR.GUI.showData(miwi_ar_pois[uuid], uuid);
+            });  
+        }     
+    }
+    
+    function toggleButton(xml3dElement) {
         var shaderName = xml3dElement.shader;
         
         if(shaderName.indexOf("green") !=-1) {
             shaderName = shaderName.replace("green","red");
+            communication.sendMessage(remoteControls['off']);
         }
         else {
             shaderName = shaderName.replace("red","green");
+            communication.sendMessage(remoteControls['on']);
         }
-        
        
        xml3dElement.setAttribute('shader', shaderName);
     }
-
 }( window['wex'] = window['wex'] || {} ));
