@@ -1,10 +1,5 @@
 // For conditions of distribution and use, see copyright notice in LICENSE
 
-/**
- * @author Toni Dahl, Antti Karhu
- */
-
-
 (function ( namespace, undefined ) {
     "use strict";
 
@@ -40,8 +35,9 @@
             
             if(restOptions.hasOwnProperty('function'))
             {
-                restQueryURL = remoteService['source'] + "?" + restOptions['function'];
+                restQueryURL = remoteService['source'] + "/" + restOptions['function'] + "?";
                 delete restOptions['function'];
+                //key = 1;
             }
             else
                 restQueryURL = remoteService['source'] + "?";
@@ -63,11 +59,15 @@
                 }
             }
             
-            console.log("restQueryURL: " + restQueryURL);
-            xhr = new XMLHttpRequest();
-            xhr.open("GET", restQueryURL, true);
+            this.sendMessage(restQueryURL, succesCallback ,errorCallback);
+        }
+        
+        this.sendMessage = function(url, succesCallback ,errorCallback) {
+        
+            var xhr = new XMLHttpRequest();
+            xhr.open("GET", url, true);
             xhr.send();
-
+            console.log("url: " + url);
             xhr.onreadystatechange = function () {
                 if(xhr.readyState === 4) {
                     if(xhr.status  === 200) { 
@@ -81,10 +81,10 @@
             }
 
             xhr.onerror = function (e) {
-                log("failed to query data from " + serviceName);
+                log("failed to query data from " /*+ serviceName*/);
             };
-        }
         
+        }
 
         this.init();
 
