@@ -17,10 +17,9 @@ def initializeDatabase():
         con = psycopg2.connect(database='poidatabase', user='gisuser')
         cur = con.cursor()
         
-        #cur.execute('CREATE TABLE IF NOT EXISTS global_points ( uuid uuid PRIMARY KEY, name VARCHAR(64), location GEOGRAPHY(POINT,4326) );')
         cur.execute('SELECT count(*) FROM core_pois;')
         num_pois = cur.fetchone()[0]
-        print num_pois, "POIs found on local database..."
+        print num_pois, "Core POIs (fw_core) found in local database..."
         con.commit()
 
     except psycopg2.DatabaseError, e:
@@ -39,7 +38,7 @@ def getPOIsFromLocalDB(parameters):
         
     queryID = None
     if "query_id" in parameters:
-      response_dict["queryID"] = parameters["query_id"]
+        response_dict["queryID"] = parameters["query_id"]
 
     con = None
     try:
@@ -49,32 +48,32 @@ def getPOIsFromLocalDB(parameters):
         
         max_results = 99999
         if "max_results" in parameters:
-	  max_results = parameters["max_results"]
+            max_results = parameters["max_results"]
         
-	uuids = tuple(parameters["poi_ids"])
-	cur.execute("SELECT uuid, name, category, description, label, url, st_x(location::geometry) as lon, st_y(location::geometry) as lat, st_astext(geometry) as geometry \
-	FROM core_pois WHERE uuid IN %s LIMIT %s", 
-	(uuids, max_results))
+        uuids = tuple(parameters["poi_ids"])
+        cur.execute("SELECT uuid, name, category, description, label, url, thumbnail, st_x(location::geometry) as lon, st_y(location::geometry) as lat, st_astext(geometry) as geometry \
+        FROM core_pois WHERE uuid IN %s LIMIT %s", 
+        (uuids, max_results))
 
-	for record in cur:
-          #print record["uuid"], record["name"], record["st_y"]
-          poi = {}
-          core_poi = {"fw_core": poi}
-          
-          uuid = record['uuid']
-          poi["location"] = {"type": "wsg84", "latitude": record['lat'], "longitude": record['lon']}
-          
-          for key in record.keys():
+        for record in cur:
+            #print record["uuid"], record["name"], record["st_y"]
+            poi = {}
+            core_poi = {"fw_core": poi}
             
-            #Skip these attributes, as they are handled differently
-            if key == 'uuid' or key == 'lat' or key == 'lon':
-              continue
-              
-            if record[key] != None:
-              poi[key] = record[key]
-          
-          if uuid != None:
-            pois[uuid] = core_poi
+            uuid = record['uuid']
+            poi["location"] = {"type": "wsg84", "latitude": record['lat'], "longitude": record['lon']}
+            
+            for key in record.keys():
+            
+                #Skip these attributes, as they are handled differently
+                if key == 'uuid' or key == 'lat' or key == 'lon':
+                    continue
+                
+                if record[key] != None:
+                    poi[key] = record[key]
+            
+            if uuid != None:
+                pois[uuid] = core_poi
 
     except psycopg2.DatabaseError, e:
         print 'Error %s' %e
@@ -95,7 +94,7 @@ def radialSearchFromLocalDB(parameters):
         
     queryID = None
     if "query_id" in parameters:
-      response_dict["queryID"] = parameters["query_id"]
+        response_dict["queryID"] = parameters["query_id"]
 
     if not "radius" in parameters:
         parameters["radius"] = 300
@@ -108,37 +107,37 @@ def radialSearchFromLocalDB(parameters):
         
         max_results = 99999
         if "max_results" in parameters:
-	  max_results = parameters["max_results"]
+            max_results = parameters["max_results"]
         
         if "categories" in parameters:
-	  cats = tuple(parameters["categories"])
-	  cur.execute("SELECT uuid, name, category, description, label, url, st_x(location::geometry) as lon, st_y(location::geometry) as lat, st_astext(geometry) as geometry \
-	  FROM core_pois WHERE ST_DWithin(location, ST_GeogFromText(\'POINT(%s %s)\'), %s) AND category IN %s LIMIT %s", 
-	  (parameters['lon'], parameters['lat'], parameters['radius'], cats, max_results))
-	else:
-	  cur.execute("SELECT uuid, name, category, description, label, url, st_x(location::geometry) as lon, st_y(location::geometry) as lat, st_astext(geometry) as geometry \
-	  FROM core_pois WHERE ST_DWithin(location, ST_GeogFromText(\'POINT(%s %s)\'), %s) LIMIT %s", 
-	  (parameters['lon'], parameters['lat'], parameters['radius'], max_results))
+            cats = tuple(parameters["categories"])
+            cur.execute("SELECT uuid, name, category, description, label, url, thumbnail, st_x(location::geometry) as lon, st_y(location::geometry) as lat, st_astext(geometry) as geometry \
+            FROM core_pois WHERE ST_DWithin(location, ST_GeogFromText(\'POINT(%s %s)\'), %s) AND category IN %s LIMIT %s", 
+            (parameters['lon'], parameters['lat'], parameters['radius'], cats, max_results))
+        else:
+            cur.execute("SELECT uuid, name, category, description, label, url, thumbnail, st_x(location::geometry) as lon, st_y(location::geometry) as lat, st_astext(geometry) as geometry \
+            FROM core_pois WHERE ST_DWithin(location, ST_GeogFromText(\'POINT(%s %s)\'), %s) LIMIT %s", 
+            (parameters['lon'], parameters['lat'], parameters['radius'], max_results))
 
         for record in cur:
-          #print record["uuid"], record["name"], record["st_y"]
-          poi = {}
-          core_poi = {"fw_core": poi}
-          
-          uuid = record['uuid']
-          poi["location"] = {"type": "wsg84", "latitude": record['lat'], "longitude": record['lon']}
-          
-          for key in record.keys():
+            #print record["uuid"], record["name"], record["st_y"]
+            poi = {}
+            core_poi = {"fw_core": poi}
             
-            #Skip these attributes, as they are handled differently
-            if key == 'uuid' or key == 'lat' or key == 'lon':
-              continue
-              
-            if record[key] != None:
-              poi[key] = record[key]
-          
-          if uuid != None:
-            pois[uuid] = core_poi
+            uuid = record['uuid']
+            poi["location"] = {"type": "wsg84", "latitude": record['lat'], "longitude": record['lon']}
+            
+            for key in record.keys():
+                
+                #Skip these attributes, as they are handled differently
+                if key == 'uuid' or key == 'lat' or key == 'lon':
+                    continue
+                
+                if record[key] != None:
+                    poi[key] = record[key]
+            
+            if uuid != None:
+                pois[uuid] = core_poi
 
     except psycopg2.DatabaseError, e:
         print 'Error %s' %e
@@ -149,15 +148,13 @@ def radialSearchFromLocalDB(parameters):
     return response_dict
 
 def gzipencode(content):
-  out = StringIO.StringIO()
-  f = gzip.GzipFile(fileobj=out, mode='w', compresslevel=5)
-  f.write(content)
-  f.close()
-  return out.getvalue()    
-    
-#def filterQueryParams(request):
-  
-    
+    out = StringIO.StringIO()
+    f = gzip.GzipFile(fileobj=out, mode='w', compresslevel=5)
+    f.write(content)
+    f.close()
+    return out.getvalue()    
+      
+
 #def updateCacheDatabase(searchResult):
     #print "Updating cache"
     #con = None

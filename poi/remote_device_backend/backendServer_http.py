@@ -5,16 +5,19 @@ import sys
 import httplib2
 import threading
 import json
+import psycopg2
+import psycopg2.extras
 from multiprocessing import Process, current_process, cpu_count
 import time
 import BaseHTTPServer
 import urlparse
 import thread
-import poi_data_manager as pdm
+import poi_rd_data_manager as prddm
 import SocketServer
 
 
-PORT_NUMBER = 8080 # This is where the HTTP server listens at
+PORT_NUMBER = 8090 # This is where the HTTP server listens at
+default_headers = [('Content-Type', 'application/json'), ('Access-Control-Allow-Origin', '*'), ('Access-Control-Allow-Headers', 'Content-Type')]
 NUMBER_OF_PROCESSES = cpu_count()
 
 def handle_common_query_parameters(query_string):
@@ -22,9 +25,7 @@ def handle_common_query_parameters(query_string):
     if 'query_id' in query_string:
         common_params['query_id'] = query_string['query_id'][0]
     if 'category' in query_string:
-        common_params['categories'] = []
-        for cat in query_string['category']:
-            common_params['categories'].append(cat)
+        common_params['category'] = query_string['category']
     if 'max_results' in query_string:
         common_params['max_results'] = query_string['max_results'][0]
     return common_params
@@ -42,40 +43,12 @@ class MyHandler(BaseHTTPServer.BaseHTTPRequestHandler):
         qs = {}
         sp = {}
         path = s.path
-
         acceptGzip = False
         if "Accept-Encoding" in s.headers:
             if "gzip" in s.headers.get("Accept-Encoding"):
                 acceptGzip = True
-
-        if "radial_search" in path:
-            if '?' in path:
-                path, tmp = path.split('?', 1)
-                qs = urlparse.parse_qs(tmp)
-                
-                if not 'lat' in qs:
-                    s.wfile.write("'lat' parameter missing!")
-                    return
-                else:
-                    sp['lat'] = float(qs['lat'][0])
-                if not 'lon' in qs:
-                    s.wfile.write("'lon' parameter missing!")
-                    return
-                else:
-                    sp['lon'] = float(qs['lon'][0])
-                if 'radius' in qs:
-                    sp['radius'] = float(qs['radius'][0])
-                
-                common_params = handle_common_query_parameters(qs)
-                sp.update(common_params)
-
-                response = pdm.radialSearchFromLocalDB(sp)
-
-            else:
-                s.wfile.write("Required parameters missing!")
-                return
             
-        elif "get_pois" in path:
+        if "get_pois" in path:
             if '?' in path:
                 path, tmp = path.split('?', 1)
                 qs = urlparse.parse_qs(tmp)
@@ -90,14 +63,14 @@ class MyHandler(BaseHTTPServer.BaseHTTPRequestHandler):
                 common_params = handle_common_query_parameters(qs)
                 sp.update(common_params)
                 
-                response = pdm.getPOIsFromLocalDB(sp)
+                response = prddm.getPOIsFromLocalDB(sp)
 
             else:
                 s.wfile.write("Required parameters missing!")
                 return
         
         elif 'get_components' in path:
-            response = {"components": ["fw_core"]}
+            response = {"components": ["fw_remote_device"]}
         
         else:
             s.wfile.write("No supported method defined!")
@@ -108,9 +81,9 @@ class MyHandler(BaseHTTPServer.BaseHTTPRequestHandler):
         s.send_header("Access-Control-Allow-Origin", "*")
         
         resp = json.dumps(response)
-            
+        
         if acceptGzip:
-            resp = pdm.gzipencode(resp)
+            resp = prddm.gzipencode(resp)
             s.send_header("Content-length", str(len(str(resp))))
             s.send_header("Content-Encoding", "gzip")
             
@@ -143,7 +116,7 @@ def runpool(number_of_processes):
 if __name__ == '__main__':
     #log.startLogging(sys.stdout)
 
-    pdm.initializeDatabase()
+    prddm.initializeDatabase()
 
     #server_class = BaseHTTPServer.HTTPServer
     print time.asctime(), "Server Starts - %s:%s" % ("localhost", PORT_NUMBER)

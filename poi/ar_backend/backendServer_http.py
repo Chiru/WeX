@@ -5,16 +5,19 @@ import sys
 import httplib2
 import threading
 import json
+import psycopg2
+import psycopg2.extras
 from multiprocessing import Process, current_process, cpu_count
 import time
 import BaseHTTPServer
 import urlparse
 import thread
-import poi_data_manager as pdm
+import poi_ar_data_manager as pdm
 import SocketServer
 
 
-PORT_NUMBER = 8080 # This is where the HTTP server listens at
+PORT_NUMBER = 8085 # This is where the HTTP server listens at
+default_headers = [('Content-Type', 'application/json'), ('Access-Control-Allow-Origin', '*'), ('Access-Control-Allow-Headers', 'Content-Type')]
 NUMBER_OF_PROCESSES = cpu_count()
 
 def handle_common_query_parameters(query_string):
@@ -22,9 +25,7 @@ def handle_common_query_parameters(query_string):
     if 'query_id' in query_string:
         common_params['query_id'] = query_string['query_id'][0]
     if 'category' in query_string:
-        common_params['categories'] = []
-        for cat in query_string['category']:
-            common_params['categories'].append(cat)
+        common_params['category'] = query_string['category']
     if 'max_results' in query_string:
         common_params['max_results'] = query_string['max_results'][0]
     return common_params
@@ -42,12 +43,10 @@ class MyHandler(BaseHTTPServer.BaseHTTPRequestHandler):
         qs = {}
         sp = {}
         path = s.path
-
         acceptGzip = False
         if "Accept-Encoding" in s.headers:
             if "gzip" in s.headers.get("Accept-Encoding"):
                 acceptGzip = True
-
         if "radial_search" in path:
             if '?' in path:
                 path, tmp = path.split('?', 1)
@@ -64,12 +63,12 @@ class MyHandler(BaseHTTPServer.BaseHTTPRequestHandler):
                 else:
                     sp['lon'] = float(qs['lon'][0])
                 if 'radius' in qs:
-                    sp['radius'] = float(qs['radius'][0])
+                    sp['radius'] = int(qs['radius'][0])
                 
                 common_params = handle_common_query_parameters(qs)
                 sp.update(common_params)
 
-                response = pdm.radialSearchFromLocalDB(sp)
+                response = pdm.radialSearchFromRemoteBE(sp)
 
             else:
                 s.wfile.write("Required parameters missing!")
@@ -85,19 +84,19 @@ class MyHandler(BaseHTTPServer.BaseHTTPRequestHandler):
                     s.wfile.write("'poi_id' parameter missing!")
                     return
                 else:
-                    sp['poi_ids'] = qs['poi_id']
+                    sp['poi_id'] = qs['poi_id']
 
                 common_params = handle_common_query_parameters(qs)
                 sp.update(common_params)
                 
-                response = pdm.getPOIsFromLocalDB(sp)
+                response = pdm.getPOIsFromRemoteBE(sp)
 
             else:
-                s.wfile.write("Required parameters missing!")
-                return
+                    s.wfile.write("Required parameters missing!")
+                    return
         
         elif 'get_components' in path:
-            response = {"components": ["fw_core"]}
+            response = {"components": ["fw_core", "fw_xml3d", "fw_remote_device"]}
         
         else:
             s.wfile.write("No supported method defined!")
@@ -141,9 +140,6 @@ def runpool(number_of_processes):
     httpd.server_close()      
       
 if __name__ == '__main__':
-    #log.startLogging(sys.stdout)
-
-    pdm.initializeDatabase()
 
     #server_class = BaseHTTPServer.HTTPServer
     print time.asctime(), "Server Starts - %s:%s" % ("localhost", PORT_NUMBER)
