@@ -30,6 +30,7 @@
         AR.GUI.init();
         AR.GUI.observeOrientation(orientationListener.signal);
         orientationListener.signal.add(sceneManager.setCameraOrientation);
+        sceneManager.setCameraVerticalPlane(65);
     };
 
     function get_res() {
