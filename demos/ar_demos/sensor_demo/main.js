@@ -131,14 +131,21 @@
             remoteControls['off'] = controls['set_state_off_url'];
             remoteControls['state'] = controls['get_state_url'];
             
-            var xml3dElement = sceneManager.getObjectByID(modelID);
+            var xml3dElement = document.getElementById(modelID);
             xml3dElement.addEventListener("click", function(){toggleButton(xml3dElement.childNodes[0]);}); 
         }
     }
     
     function handleXml3dComponent(data, uuid) {
     
-        sceneManager.addToScene(data);
+        //sceneManager.addToScene(data);
+        if (!data)
+            return null;
+                         
+        if(data.hasOwnProperty( "model" )) {
+            $("xml3d").append(data['model']);
+        }
+        
         if(data.hasOwnProperty( "model" )) {
             var xml3dElement = document.getElementById(data['model_id']);
             sceneManager.setPositionFromGeoLocation(currentLoc, gpsPoints[uuid], xml3dElement);
