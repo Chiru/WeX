@@ -54,8 +54,6 @@
             listeners = {},
             hasGPS = false;
 
-
-
         this.init = function () {
             // Checking available sensors and GPS
             log( "SensorManager: Initialising..." );
@@ -103,7 +101,6 @@
             return listeners[type];
         };
 
-
         this.hasGPS = function () {
             return hasGPS;
         };
@@ -140,11 +137,9 @@
             return false;
         };
 
-
         // Initialise when created
         this.init();
 
     };
-
 
 }( window['wex'] = window['wex'] || {} ));
