@@ -17,7 +17,7 @@
         // Setting options
         opts = extend( {}, defaults, options );
 
-        var scene, visibleObjects = [], activeCamera, xml3d, cameraVerticalPlane = 65, billboardSet = [], 
+        var scene, visibleObjects = [], activeCamera, xml3d, cameraVerticalPlane = 0, billboardSet = [], 
             maxDistance = 50, transIndex = 0, up = new XML3DVec3(0,1,0);
 
         this.init = function () {
@@ -26,16 +26,9 @@
             this.initCamera();
         };
 
-
-        this.addToScene = function (Poi_fw_xml3d_component) {
-
-            if (!Poi_fw_xml3d_component) {
-                return null;
-            }
-                         
-            if(Poi_fw_xml3d_component.hasOwnProperty( "model" )) {
-                $("xml3d").append(Poi_fw_xml3d_component['model']);
-            }
+        this.setCameraVerticalPlane = function (degrees)
+        {
+            cameraVerticalPlane = degrees;
         };
 
         this.addObjetcToBillboardSet = function(xml3dElement) {
