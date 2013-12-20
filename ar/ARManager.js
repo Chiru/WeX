@@ -18,19 +18,18 @@
         // Setting options
         opts = extend( {}, defaults, options );
 
-        var flowAnalysers, observers, background, bgCtx, callBackFunctions = [];
+        var flowAnalysers, observers, background, bgCtx, callBackFunctions = [], maxMarkersToTrack;
 
-        flowAnalysers = {
+         flowAnalysers = {
             'ARBase': false,
-            'MarkerAnalyser': false
         };
 
         observers = {
-            'ARBase': videoStreamObserver(),
-            'MarkerAnalyser': MarkerObserver()
+            'ARBase': VideoStreamObserver(),
+            'MarkerAnalyser': MarkerObserver(),
         };
         
-        var video, localVideoStream, alvar;
+        var video, localVideoStream, alvar, numMarkers = 63;
 
 
         var noCameraFeedError = function () {
@@ -42,7 +41,7 @@
         };
 
 
-        function videoStreamObserver() {
+        function VideoStreamObserver() {
             return new XML3DDataObserver( function ( records, observer ) {
                 var arVideo = records[0].result.getValue( "arvideo" ),
                     imageData, i, dataLen, width, height;
@@ -64,8 +63,8 @@
 
         function MarkerObserver() {
             return new XML3DDataObserver( function ( records, observer ) {
-                var i, transforms = records[0].result.getValue("transforms");
-                var visibilities = records[0].result.getValue("visibilities");
+                var i, transforms = records[0].result.getValue("basicMarkerTransforms");
+                var visibilities = records[0].result.getValue("basicMarkerVisibilities");
                 
                     if(callBackFunctions.length === 0)
                         return;
@@ -89,16 +88,11 @@
         function initObservers() {
             var id;
             for ( id in flowAnalysers ) {
-                if ( flowAnalysers[id] ) {
-                    log( "ARManager: Found " + id + " XFlow element." );
-                    if ( id === 'ARBase' ) {
-                        observers[id].observe( flowAnalysers[id], {names: ["arvideo"]} );
-                    }
-                    else if ( id === 'MarkerAnalyser' ) {
-                        log( "ARManager: Observing Marker tags from the camera feed." );
-                        observers[id].observe( flowAnalysers[id], {names: ["transforms", "visibilities"]} );
-                    }
-                }
+                 if( id === 'ARBase' ) {
+                     observers['ARBase'].observe( flowAnalysers[id], {names: ["arvideo"]} );
+                     log( "ARManager: Observing Marker tags from the camera feed." );
+                     observers['MarkerAnalyser'].observe( flowAnalysers[id], {names: ["basicMarkerTransforms", "basicMarkerVisibilities"]} );
+                 }
             }
         }
 
@@ -114,7 +108,7 @@
             video = document.querySelector( 'video' );
 
             if ( !video ) {
-                log( "ARManager: ERROR: No video tag was found." );
+                log( "ARManager: ERROR: No <video> tag was found." );
                 return;
             }
 
@@ -128,7 +122,8 @@
             initFlowAnalysers();
             alvar = new AR.Alvar(framework);
             initObservers();
-
+            maxMarkersToTrack = document.getElementById('basicMarkers').value.length;
+            log( "ARManager: Max number of markers to track " + maxMarkersToTrack);
             log( "ARManager: Done." );
 
         };
@@ -157,9 +152,26 @@
         this.setMarkerCallback = function(callback) {
             callBackFunctions.push(callback);
         }
+        
+        this.addMarker = function (markerId) {
+        
+            if(markerId < 0 && markerId > numMarkers)
+                log("ARManager: Incorrect marker id " +markerId+ ". Markers must be between 0 - 63");
+            
+            var i, markers = document.getElementById('basicMarkers').value;
+            
+            for(i = 0; i < markers.length; ++i)
+            {
+                if(markers[i] === -1) {
+                    markers[i] = markerId;
+                    return;
+                }
+            }
+           
+           log("ARManager: Could not add marker id " + markerId + " to objects to track");
+        };
 
         this.init();
-
 
     };
 
