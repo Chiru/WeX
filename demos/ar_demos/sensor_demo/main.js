@@ -138,7 +138,6 @@
     
     function handleXml3dComponent(data, uuid) {
     
-        //sceneManager.addToScene(data);
         if (!data)
             return null;
                          
@@ -161,6 +160,7 @@
         
         if(shaderName.indexOf("green") !=-1) {
             shaderName = shaderName.replace("green","red");
+            //TODO: update to the current implementation of communication API
             communication.sendMessage(remoteControls['off']);
         }
         else {

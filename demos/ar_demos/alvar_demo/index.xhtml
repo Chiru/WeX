@@ -22,7 +22,6 @@
 
             <xml3d id="xml3dContent" xmlns="http://www.xml3d.org/2009/xml3d" activeView="#View" style="background: rgba(0,0,0,0);">
 
-
                  <defs>
                     <!-- shader for Object to be drawn on the video stream -->
                 <shader id="obj1Shader" script="urn:xml3d:shader:phong">
@@ -57,26 +56,17 @@
                 
                 </defs>
 
-                <data id="ARBase" compute="transforms, visibilities, perspective = alvar-mobile-xflow.detect(arvideo, markers, noflip)">
-                    <bool name="noflip">true</bool>
-                    <int name="markers">32</int>
-                    <texture name="arvideo">
+                <data id="ARBase" compute="basicMarkerTransforms, basicMarkerVisibilities, perspective = alvar.detect(arvideo, basicMarkers, flip)">
+                  <bool name="flip">false</bool>
+                    <int id = "basicMarkers" name="basicMarkers">32</int>
+                      <texture name="arvideo">
                         <video autoplay="false"></video>
-                    </texture>
-                </data>
+                      </texture>
+                </data>   
                  
                 <!-- Viewpoint with connection to AR data -->
                 <view id="View" perspective="#ARBase" />
                  
-                <!-- Object 1: -->
-                <!-- Extract visibility and transformation -->
-                <data id="MarkerAnalyser" compute="transform = alvar-mobile-xflow.selectTransform(index, transforms)">
-                    <data compute="visibility = xflow.selectBool(index, visibilities)">
-                        <int name="index">0</int>
-                        <data src="#ARBase"/>
-                    </data>
-                </data>
-
                 <transform id="t_teapot_ar" scale="0.02000000 0.02000000 0.02000000" />
                 <group id = "teapot" transform="#t_teapot_ar" shader="#obj1Shader" visible="false">
                     <group style="transform: rotateX(90deg)">
