@@ -78,30 +78,30 @@
         
         this.registerXFlowOperators = function() {
             //marker detection operator
-            Xflow.registerOperator("alvar-mobile-xflow.detect", {
-                outputs: [ {type: 'float4x4', name : 'transforms', customAlloc: true},
-                           {type: 'bool', name: 'visibilities', customAlloc: true},
+            Xflow.registerOperator("alvar.detect", {
+                outputs: [ {type: 'float4x4', name : 'basicMarkerTransforms', customAlloc: true},
+                           {type: 'bool', name: 'basicMarkerVisibilities', customAlloc: true},
                            {type: 'float4x4', name : 'perspective', customAlloc: true}
                          ],
                 params:  [ {type: 'texture', source : 'imageData'},
-                           {type: 'int', source: 'markers'},
-                           {type: 'bool', source: 'noflip', optional: true}
+                           {type: 'int', source: 'basicMarkers'},
+                           {type: 'bool', source: 'flip', optional: true}
                          ],
-                alloc: function(sizes, imageData, markers) {
-                    var len = markers.length;
-                    sizes['transforms'] = len;
-                    sizes['visibilities'] = len;
+                alloc: function(sizes, imageData, basicMarkers) {
+                    var len = basicMarkers.length;
+                    sizes['basicMarkerTransforms'] = len;
+                    sizes['basicMarkerVisibilities'] = len;
                     sizes['perspective'] = 1;
                 },
                 
-                evaluate: function(transforms, visibilities, perspective, imageData, markers, noflip) {
+                evaluate: function(basicMarkerTransforms, basicMarkerVisibilities, perspective, imageData, basicMarkers, flip) {
                     var projectionMatrix, detected, index;
                      
                 	if(!imageData || !imageData.data || imageData.length == 0)
                 		return;
                 	
                 	if(!alvarInitialized){
-                		initAlvar(imageData.width, imageData.height, markers);
+                		initAlvar(imageData.width, imageData.height, basicMarkers);
                 		alvarInitialized = true;
                 	}
 
@@ -115,16 +115,16 @@
                     detected = detectMarkers(imageData);
                     index = 0;
                     
-                    for (index in transforms) {
+                    for (index in basicMarkerTransforms) {
                     	// Initialize markers visibility by marker index
-                        visibilities[index] = false;
+                        basicMarkerVisibilities[index] = false;
                         
                         // Initialize transform matrices to identity matrices for each requested marker
                         var mi = 16*index;
-			            transforms[mi+0] = 1; transforms[mi+1] = 0; transforms[mi+2] = 0; transforms[mi+3] = 0;
-			            transforms[mi+4] = 0; transforms[mi+5] = 1; transforms[mi+6] = 0; transforms[mi+7] = 0;
-			            transforms[mi+8] = 0; transforms[mi+9] = 0; transforms[mi+10] = 1; transforms[mi+11] = 0;
-			            transforms[mi+12] = 0; transforms[mi+13] = 0; transforms[mi+14] = 0; transforms[mi+15] = 1;
+			            basicMarkerTransforms[mi+0] = 1; basicMarkerTransforms[mi+1] = 0; basicMarkerTransforms[mi+2] = 0; basicMarkerTransforms[mi+3] = 0;
+			            basicMarkerTransforms[mi+4] = 0; basicMarkerTransforms[mi+5] = 1; basicMarkerTransforms[mi+6] = 0; basicMarkerTransforms[mi+7] = 0;
+			            basicMarkerTransforms[mi+8] = 0; basicMarkerTransforms[mi+9] = 0; basicMarkerTransforms[mi+10] = 1; basicMarkerTransforms[mi+11] = 0;
+			            basicMarkerTransforms[mi+12] = 0; basicMarkerTransforms[mi+13] = 0; basicMarkerTransforms[mi+14] = 0; basicMarkerTransforms[mi+15] = 1;
                     }
 
                     // Loop all detected markers
@@ -135,9 +135,9 @@
 
                     	// Update
                     	var markerIndex = 0;
-                        for (; markerIndex < markers.length; ++markerIndex) {
-                            if (markers[markerIndex] == id) {
-                                visibilities[markerIndex] = true;
+                        for (; markerIndex < basicMarkers.length; ++markerIndex) {
+                            if (basicMarkers[markerIndex] == id) {
+                                basicMarkerVisibilities[markerIndex] = true;
                                 break;
                             }
                         }
@@ -147,44 +147,40 @@
 
                         var mOffset = 16*markerIndex;
 
-                        var webcamFlipped = true;
-                        if (noflip && noflip[0])
-                            webcamFlipped = false;
-
-                        if (webcamFlipped) {
+                        if (flip && flip[0]) {
                             // webcam (we show mirrored picture on the screen)
-                            transforms[mOffset+0]  = pose[0];
-                            transforms[mOffset+1]  = pose[1];
-                            transforms[mOffset+2]  = pose[2];
+                            basicMarkerTransforms[mOffset+0]  = pose[0];
+                            basicMarkerTransforms[mOffset+1]  = -pose[1];
+                            basicMarkerTransforms[mOffset+2]  = -pose[2];
                             //transforms[mOffset+3]  = 0;
-                            transforms[mOffset+4]  = -pose[4];
-                            transforms[mOffset+5]  = -pose[5];
-                            transforms[mOffset+6]  = -pose[6];
+                            basicMarkerTransforms[mOffset+4]  = -pose[4];
+                            basicMarkerTransforms[mOffset+5]  = pose[5];
+                            basicMarkerTransforms[mOffset+6]  = pose[6];
                             //transforms[mOffset+7]  = 0;
-                            transforms[mOffset+8]  = -pose[8];
-                            transforms[mOffset+9]  = -pose[9];
-                            transforms[mOffset+10] = -pose[10];
+                            basicMarkerTransforms[mOffset+8]  = -pose[8];
+                            basicMarkerTransforms[mOffset+9]  = pose[9];
+                            basicMarkerTransforms[mOffset+10] = pose[10];
                             //transforms[mOffset+11] = 0;
-                            transforms[mOffset+12] = -pose[12];
-                            transforms[mOffset+13] = -pose[13];
-                            transforms[mOffset+14] = -pose[14];
+                            basicMarkerTransforms[mOffset+12] = -pose[12];
+                            basicMarkerTransforms[mOffset+13] = pose[13];
+                            basicMarkerTransforms[mOffset+14] = pose[14];
                             //transforms[mOffset+15] = 1;
                         } else {
-                            transforms[mOffset+0]  = pose[0];
-                            transforms[mOffset+1]  = pose[1];
-                            transforms[mOffset+2]  = pose[2];
+                            basicMarkerTransforms[mOffset+0]  = pose[0];
+                            basicMarkerTransforms[mOffset+1]  = pose[1];
+                            basicMarkerTransforms[mOffset+2]  = pose[2];
                             //transforms[mOffset+3]  = 0;
-                            transforms[mOffset+4]  = pose[4];
-                            transforms[mOffset+5]  = pose[5];
-                            transforms[mOffset+6]  = pose[6];
+                            basicMarkerTransforms[mOffset+4]  = pose[4];
+                            basicMarkerTransforms[mOffset+5]  = pose[5];
+                            basicMarkerTransforms[mOffset+6]  = pose[6];
                             //transforms[mOffset+7]  = 0;
-                            transforms[mOffset+8]  = pose[8];
-                            transforms[mOffset+9]  = pose[9];
-                            transforms[mOffset+10] = pose[10];
+                            basicMarkerTransforms[mOffset+8]  = pose[8];
+                            basicMarkerTransforms[mOffset+9]  = pose[9];
+                            basicMarkerTransforms[mOffset+10] = pose[10];
                             //transforms[mOffset+11] = 0;
-                            transforms[mOffset+12] = pose[12];
-                            transforms[mOffset+13] = pose[13];
-                            transforms[mOffset+14] = pose[14];
+                            basicMarkerTransforms[mOffset+12] = pose[12];
+                            basicMarkerTransforms[mOffset+13] = pose[13];
+                            basicMarkerTransforms[mOffset+14] = pose[14];
                             //transforms[mOffset+15] = 1;
                     	}
                     }
@@ -193,7 +189,7 @@
                 }
             });
             
-            Xflow.registerOperator("alvar-mobile-xflow.selectTransform", {
+            Xflow.registerOperator("alvar.selectTransform", {
                 outputs: [ {type: 'float4x4', name : 'result', customAlloc: true} ],
                 params:  [ {type: 'int', source : 'index'},
                            {type: 'float4x4', source: 'transform'} ],
