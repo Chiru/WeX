@@ -4,10 +4,19 @@
  * @author Toni Dahl
  */
 
+
+
 (function ( namespace, undefined ) {
 
     var Util = namespace.Util = (function () {
-
+    
+    var htmlEncoder = function HtmlEncode(s)
+    {
+        var el = document.createElement("div");
+        el.innerText = el.textContent = s;
+        s = el.innerHTML;
+        return s;
+    }
 
         return {
 
@@ -23,7 +32,7 @@
                 el = document.getElementById( "log" );
                 if ( el !== null ) {
                     el.innerHTML +=
-                        "&#8195;[" + new Date().toTimeString().replace( /.*(\d{2}:\d{2}:\d{2}).*/, "$1" ) + "] " + str + "<br />";
+                        "&#8195;[" + new Date().toTimeString().replace( /.*(\d{2}:\d{2}:\d{2}).*/, "$1" ) + "] " + htmlEncoder(str) + "<br />";
                     el.scrollTop = el.scrollHeight;
                 }
 

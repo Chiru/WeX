@@ -63,8 +63,8 @@
             transform.translation.z = activeCamera.position.z + radius * Math.cos(Math.PI - geolocation.bearing);
             transform.translation.x = activeCamera.position.x + radius * Math.sin(Math.PI - geolocation.bearing);
             //log("distance: " + geolocation.distance.toFixed( 2 ) + " meters,  radius: " + radius);
-            log("bearing: " + geolocation.bearing * (180 / Math.PI) + " degrees");
-            log("location x: " + transform.translation.x + "  z: " + transform.translation.z);
+            //log("bearing: " + geolocation.bearing * (180 / Math.PI) + " degrees");
+            //log("location x: " + transform.translation.x + "  z: " + transform.translation.z);
 
         };
         
@@ -120,6 +120,21 @@
         };
         
         this.translateCamera = function (curLoc, gpsPoint) {
+
+            if(!activeCamera || !curLoc || !gpsPoint)
+                return;
+              
+            var geolocation = distanceBetween(curLoc, gpsPoint);
+            //log("distance: " + geolocation.distance);
+            
+            if(geolocation.distance > 50)
+                return;
+                
+            var radius = geolocation.distance;
+
+            activeCamera.position.z = activeCamera.position.z + radius * Math.cos(Math.PI - geolocation.bearing);
+            activeCamera.position.x = activeCamera.position.x + radius * Math.sin(Math.PI - geolocation.bearing);
+            //log("position z: " + activeCamera.position.z + "   x: " + activeCamera.position.x);
 
         };
         
