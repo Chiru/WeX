@@ -11,7 +11,7 @@ function connectPostgreSQL($db_name)
     return $pgcon;
 }
 
-function fw_core_pgsql2array($core_result)
+function fw_core_pgsql2array($core_result, $incl_fw_core)
 {
     $json_struct = array();
     $pois = array();
@@ -22,21 +22,39 @@ function fw_core_pgsql2array($core_result)
         if ($uuid == NULL)
             continue;
         $poi = array();
-        $core_component = array();
-        $core_component["location"] = array("wsg84" => array("latitude" => $row['lat'], "longitude" => $row['lon']));
         
-        foreach (array_keys($row) as $key)
-        {
-            #Skip these attributes, as they are handled differently
-            if ($key == 'uuid' or $key == 'lat' or $key == 'lon')
-                continue;
-                
-            if ($row[$key] != NULL)
-                $core_component[$key] = $row[$key];
+        //fw_core component is included in the request...
+        if ($incl_fw_core == TRUE) {
+            $core_component = array();
+            $core_component["location"] = array("wsg84" => array("latitude" => $row['lat'], "longitude" => $row['lon']));
+            
+            if ($row['timestamp'] != NULL)
+            {
+//                 if ($row['userid'] != NULL) {
+//                     $core_component['last_update'] = array('timestamp' => $row['timestamp'], 'user_id' => $row['userid']);
+//                 }
+//                 else {
+                    $core_component['last_update'] = array('timestamp' => $row['timestamp']);
+//                 }
+            }
+            
+            foreach (array_keys($row) as $key)
+            {
+                #Skip these attributes, as they are handled differently
+                if ($key == 'uuid' or $key == 'lat' or $key == 'lon' or $key == 'timestamp' or $key == 'userid')
+                    continue;
+                    
+                if ($row[$key] != NULL)
+                    $core_component[$key] = $row[$key];
+            }
+            
+            $poi['fw_core'] = $core_component;
+            $pois[$uuid] = $poi;
+        }
+        else {
+            $pois[$uuid] = (object) null;
         }
         
-        $poi['fw_core'] = $core_component;
-        $pois[$uuid] = $poi;
     }
     $json_struct["pois"] = $pois;
     return $json_struct;
@@ -54,6 +72,26 @@ function connectMongoDB($db_name)
     {
         die("Error connecting to MongoDB server");
     }
+}
+
+function escape_csv($csv_string)
+{
+    $esc_str = pg_escape_string($csv_string);
+    $str_values = explode(",", $esc_str);
+    foreach ($str_values as &$val)
+    {
+        $val = "'".$val."'";
+    }
+    $esc_csv = implode(",", $str_values);
+    return $esc_csv;
+}
+
+function get_supported_components()
+{
+    $components = array();
+    $components[] = "fw_core";
+    
+    return $components;
 }
 
 ?>

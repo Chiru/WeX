@@ -54,29 +54,39 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' )
             }
             if ($lat == NULL or $lon == NULL)
             {
+                header("HTTP/1.0 400 Bad Request");
                 die ("Failed to parse location: lat or lon is NULL!");
             }
             
-            if ($fw_core['description'])
+            if (isset($fw_core['description']))
                 $description = pg_escape_string($fw_core['description']);
-            if ($fw_core['label'])
+            if (isset($fw_core['label']))
                 $label = pg_escape_string($fw_core['label']);
-            if ($fw_core['url'])
+            if (isset($fw_core['url']))
                 $url = pg_escape_string($fw_core['url']);
-            if ($fw_core['thumbnail'])
+            if (isset($fw_core['thumbnail']))
                 $thumbnail = pg_escape_string($fw_core['thumbnail']);
-            
-            $insert = "INSERT INTO core_pois (uuid, name, category, location, description, label, url, thumbnail) " . 
-            "VALUES('$uuid', '$name', '$category', ST_GeogFromText('POINT($lon $lat)'), '$description', '$label', '$url', '$thumbnail');";
+            $timestamp = time();
+            $insert = "INSERT INTO core_pois (uuid, name, category, location, description, label, url, thumbnail, timestamp) " . 
+            "VALUES('$uuid', '$name', '$category', ST_GeogFromText('POINT($lon $lat)'), '$description', '$label', '$url', '$thumbnail', $timestamp);";
             
             $insert_result = pg_query($insert);
-            if (!$insert)
+            if (!$insert_result)
             {
+                header("HTTP/1.0 500 Internal Server Error");
                 echo "A database error has occured!";
                 echo pg_last_error();
                 exit;
             }
-            print $uuid;
+            
+            $new_poi_info = array();
+            $new_poi_info['uuid'] = $uuid;
+            $new_poi_info['timestamp'] = $timestamp;
+            $ret_val_arr = array("created_poi" => $new_poi_info);
+            $ret_val = json_encode($ret_val_arr);
+            
+            header("Access-Control-Allow-Origin: *");
+            print $ret_val;
         }
         
         else
@@ -87,35 +97,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' )
     
     else
     {
+        header("HTTP/1.0 400 Bad Request");
         die("Error decoding request payload as JSON!");
     }
     
 }
-
-// if (isset ($_POST['poi_data']))
-// {
-//     $poi_data = $_POST['poi_data'];
-// 
-//     $pgcon = connectPostgreSQL("poidatabase");
-//     
-// //     $query = "SELECT uuid, name, category, description, label, url, thumbnail, st_x(location::geometry) as lon, st_y(location::geometry) as lat, st_astext(geometry) as geometry " .
-// //         "FROM core_pois WHERE uuid IN ($esc_ids)";
-// // 
-// //     $core_result = pg_query($query);
-// //     
-// //     if (!$core_result)
-// //     {
-// //         header("HTTP/1.0 500 Internal Server Error");
-// //         $error = pg_last_error();
-// //         die($error);
-// //     }
-// //     
-// //     $json_struct = fw_core_pgsql2array($core_result);
-// //     $return_val = json_encode($json_struct);
-// //     header("Content-type: application/json");
-// //     echo $return_val;
-//     
-// }
 
 else {
      header("HTTP/1.0 400 Bad Request");
