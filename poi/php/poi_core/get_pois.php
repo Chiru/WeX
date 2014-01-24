@@ -49,6 +49,8 @@ if (isset ($_GET['poi_id']))
         }
     }
     
+    //TODO: handle other components from MongoDB...
+    
     $return_val = json_encode(array("pois" => $data));
     header("Content-type: application/json");
     header("Access-Control-Allow-Origin: *");

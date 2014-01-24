@@ -89,6 +89,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' )
             print $ret_val;
         }
         
+        //TODO: handle other components from MongoDB...
+        
         else
         {
             print "fw_core NOT found!";

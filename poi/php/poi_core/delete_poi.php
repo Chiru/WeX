@@ -26,6 +26,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'DELETE' )
             die("The specified UUID was not found from the database!");
         }
         
+        //TODO: handle other components from MongoDB...
+        
         echo "POI deleted succesfully";
         
     }

@@ -138,6 +138,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' )
             }
         
         }
+        
+        //TODO: handle other components from MongoDB...
+        
         else
         {
             print "fw_core NOT found!";

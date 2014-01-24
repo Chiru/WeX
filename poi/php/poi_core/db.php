@@ -1,5 +1,13 @@
 <?php
 
+function get_supported_components()
+{
+    $components = array();
+    $components[] = "fw_core";
+    
+    return $components;
+}
+
 function connectPostgreSQL($db_name)
 {
     $pgcon = pg_connect("dbname=".$db_name." user=gisuser");
@@ -72,26 +80,6 @@ function connectMongoDB($db_name)
     {
         die("Error connecting to MongoDB server");
     }
-}
-
-function escape_csv($csv_string)
-{
-    $esc_str = pg_escape_string($csv_string);
-    $str_values = explode(",", $esc_str);
-    foreach ($str_values as &$val)
-    {
-        $val = "'".$val."'";
-    }
-    $esc_csv = implode(",", $str_values);
-    return $esc_csv;
-}
-
-function get_supported_components()
-{
-    $components = array();
-    $components[] = "fw_core";
-    
-    return $components;
 }
 
 ?>

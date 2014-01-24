@@ -1,11 +1,9 @@
 <?php
 
 require 'db.php';
+require 'util.php';
 
 $radius = 300;
-$max_results = 9999;
-
-$components = get_supported_components();
 
 if (isset ($_GET['lat']) and isset ($_GET['lon']))
 {
@@ -36,43 +34,19 @@ if (isset ($_GET['lat']) and isset ($_GET['lon']))
         }
     }
   
-    if (isset($_GET['category']))
-    {
-        $category = $_GET['category'];
-        $esc_categories = escape_csv($category);
-    }
-  
-    if (isset($_GET['component']))
-    {
-        $component = $_GET['component'];
-        $esc_components = pg_escape_string($component);
-        $components = explode(",", $esc_components);
-        
-    }
-  
-    if (isset($_GET['max_results']))
-    {
-        $max_res = $_GET['max_results'];
-        if (!is_numeric($max_res))
-        {
-            header("HTTP/1.0 400 Bad Request");
-            echo "'max_results' must be a numeric value!";
-            return;
-        }
-        $max_results = intval($max_res);
-    }    
+    $common_params = handle_common_search_params();
     
     $pgcon = connectPostgreSQL("poidatabase");
     
-    if (isset($esc_categories))
+    if (isset($common_params['categories']))
     {
         $query = "SELECT uuid, name, category, description, label, url, thumbnail, st_x(location::geometry) as lon, st_y(location::geometry) as lat, st_astext(geometry) as geometry, timestamp " .
-        "FROM core_pois WHERE ST_DWithin(location, ST_GeogFromText('POINT($lon $lat)'), $radius) AND category in ($esc_categories) LIMIT $max_results";
+        "FROM core_pois WHERE ST_DWithin(location, ST_GeogFromText('POINT($lon $lat)'), $radius) AND category in (" . $common_params['categories'] . ") LIMIT " . $common_params['max_results'];
     }
     
     else {
         $query = "SELECT uuid, name, category, description, label, url, thumbnail, st_x(location::geometry) as lon, st_y(location::geometry) as lat, st_astext(geometry) as geometry, timestamp " .
-        "FROM core_pois WHERE ST_DWithin(location, ST_GeogFromText('POINT($lon $lat)'), $radius) LIMIT $max_results";
+        "FROM core_pois WHERE ST_DWithin(location, ST_GeogFromText('POINT($lon $lat)'), $radius) LIMIT " . $common_params['max_results'];
     }
 //     echo "<br>" . $query;
 
@@ -86,12 +60,17 @@ if (isset ($_GET['lat']) and isset ($_GET['lon']))
     }
     
     $incl_fw_core = FALSE;
-    if (in_array("fw_core", $components))
+    if (in_array("fw_core", $common_params['components']))
     {
         $incl_fw_core = TRUE;
     }
   
     $json_struct = fw_core_pgsql2array($core_result, $incl_fw_core);
+    
+    
+    //TODO: handle other components from MongoDB...
+    
+    
     $return_val = json_encode($json_struct);
     header("Content-type: application/json");
     header("Access-Control-Allow-Origin: *");

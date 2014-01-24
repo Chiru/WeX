@@ -1,10 +1,7 @@
 <?php
 
 require 'db.php';
-
-$max_results = 9999;
-
-$components = get_supported_components();
+require 'util.php';
 
 if (isset ($_GET['north']) and isset ($_GET['south']) and isset ($_GET['east']) and isset ($_GET['west']))
 {
@@ -26,31 +23,7 @@ if (isset ($_GET['north']) and isset ($_GET['south']) and isset ($_GET['east']) 
         die("Coordinate values are out of range: east and west [-180, 180], north and south [-90, 90]");
     }
   
-    if (isset($_GET['category']))
-    {
-        $category = $_GET['category'];
-        $esc_categories = escape_csv($category);
-    }
-    
-    if (isset($_GET['component']))
-    {
-        $component = $_GET['component'];
-        $esc_components = pg_escape_string($component);
-        $components = explode(",", $esc_components);
-        
-    }
-  
-    if (isset($_GET['max_results']))
-    {
-        $max_res = $_GET['max_results'];
-        if (!is_numeric($max_res))
-        {
-            header("HTTP/1.0 400 Bad Request");
-            echo "'max_results' must be a numeric value!";
-            return;
-        }
-        $max_results = intval($max_res);
-    }  
+    $common_params = handle_common_search_params();
   
     $pgcon = connectPostgreSQL("poidatabase");
     
@@ -58,12 +31,12 @@ if (isset ($_GET['north']) and isset ($_GET['south']) and isset ($_GET['east']) 
     {
         $query = "SELECT uuid, name, category, description, label, url, thumbnail, st_x(location::geometry) as lon, st_y(location::geometry) as lat, st_astext(geometry) as geometry, timestamp " .
         "FROM core_pois WHERE ST_Intersects(ST_Geogfromtext('POLYGON(($west $south, $east $south, $east $north, $west $north, $west $south))'), location) " .
-        "AND category in ($esc_categories) LIMIT $max_results";
+        "AND category in (" . $common_params['categories'] . ") LIMIT " . $common_params['max_results'];
     }
     
     else {
         $query = "SELECT uuid, name, category, description, label, url, thumbnail, st_x(location::geometry) as lon, st_y(location::geometry) as lat, st_astext(geometry) as geometry, timestamp " .
-        "FROM core_pois WHERE ST_Intersects(ST_Geogfromtext('POLYGON(($west $south, $east $south, $east $north, $west $north, $west $south))'), location) LIMIT $max_results";
+        "FROM core_pois WHERE ST_Intersects(ST_Geogfromtext('POLYGON(($west $south, $east $south, $east $north, $west $north, $west $south))'), location) LIMIT " . $common_params['max_results'];
     }
 //     echo "<br>" . $query;
 
@@ -77,12 +50,16 @@ if (isset ($_GET['north']) and isset ($_GET['south']) and isset ($_GET['east']) 
     }
     
     $incl_fw_core = FALSE;
-    if (in_array("fw_core", $components))
+    if (in_array("fw_core", $common_params['components']))
     {
         $incl_fw_core = TRUE;
     }
   
     $json_struct = fw_core_pgsql2array($core_result, $incl_fw_core);
+    
+    //TODO: handle other components from MongoDB...
+    
+    
     $return_val = json_encode($json_struct);
     header("Content-type: application/json");
     header("Access-Control-Allow-Origin: *");
