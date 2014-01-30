@@ -1,5 +1,11 @@
 <?php
 
+/*
+* Project: FI-WARE
+* Copyright (c) 2014 Center for Internet Excellence, University of Oulu, All Rights Reserved
+* For conditions of distribution and use, see copyright notice in LICENCE
+*/
+
 require 'db.php';
 require 'util.php';
 
@@ -58,6 +64,27 @@ if (isset ($_GET['north']) and isset ($_GET['south']) and isset ($_GET['east']) 
     $json_struct = fw_core_pgsql2array($core_result, $incl_fw_core);
     
     //TODO: handle other components from MongoDB...
+    
+    $mongodb = connectMongoDB("poi_db");
+    
+    foreach ($common_params['components'] as $component)
+    {
+        //skip fw_core, as it hase been already handled...
+        if ($component == "fw_core")
+        {
+            continue;
+        }
+        foreach(array_keys($json_struct["pois"]) as $uuid)
+        {
+//             print $uuid;
+            $comp_data = getComponentMongoDB($mongodb, $component, $uuid);
+            if ($comp_data != NULL)
+            {
+                $json_struct["pois"][$uuid][$component] = $comp_data;
+            }
+        }
+        
+    }    
     
     
     $return_val = json_encode($json_struct);

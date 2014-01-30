@@ -1,5 +1,14 @@
 <?php
+
+/*
+* Project: FI-WARE
+* Copyright (c) 2014 Center for Internet Excellence, University of Oulu, All Rights Reserved
+* For conditions of distribution and use, see copyright notice in LICENCE
+*/
+
 require 'db.php';
+require 'util.php';
+
 if ($_SERVER['REQUEST_METHOD'] == 'DELETE' )
 {
     if (isset ($_GET['poi_id']))
@@ -26,7 +35,18 @@ if ($_SERVER['REQUEST_METHOD'] == 'DELETE' )
             die("The specified UUID was not found from the database!");
         }
         
-        //TODO: handle other components from MongoDB...
+        $components = get_supported_components();
+        $m_db = connectMongoDB("poi_db");
+        foreach($components as $component)
+        {
+            if ($component == "fw_core")
+            {
+                continue;
+            }
+            
+            $collection = $m_db->$component;
+            $collection->remove(array("_id" => $uuid));
+        }
         
         echo "POI deleted succesfully";
         

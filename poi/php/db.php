@@ -1,10 +1,15 @@
 <?php
 
+/*
+* Project: FI-WARE
+* Copyright (c) 2014 Center for Internet Excellence, University of Oulu, All Rights Reserved
+* For conditions of distribution and use, see copyright notice in LICENCE
+*/
+
 function get_supported_components()
 {
-    $components = array();
-    $components[] = "fw_core";
-    
+    $components = array("fw_core", "fw_contact", "fw_xml3d", "fw_media", "fw_time", "fw_testComponent");
+
     return $components;
 }
 
@@ -42,7 +47,7 @@ function fw_core_pgsql2array($core_result, $incl_fw_core)
 //                     $core_component['last_update'] = array('timestamp' => $row['timestamp'], 'user_id' => $row['userid']);
 //                 }
 //                 else {
-                    $core_component['last_update'] = array('timestamp' => $row['timestamp']);
+                    $core_component['last_update'] = array('timestamp' => intval($row['timestamp']));
 //                 }
             }
             
@@ -80,6 +85,13 @@ function connectMongoDB($db_name)
     {
         die("Error connecting to MongoDB server");
     }
+}
+
+function getComponentMongoDB($db, $component_name, $uuid)
+{
+    $collection = $db->$component_name;
+    $component = $collection->findOne(array("_id" => $uuid), array("_id" => false));
+    return $component;
 }
 
 ?>

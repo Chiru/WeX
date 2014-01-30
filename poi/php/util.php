@@ -1,5 +1,11 @@
 <?php
 
+/*
+* Project: FI-WARE
+* Copyright (c) 2014 Center for Internet Excellence, University of Oulu, All Rights Reserved
+* For conditions of distribution and use, see copyright notice in LICENCE
+*/
+
 function handle_common_search_params()
 {
     $params = array();

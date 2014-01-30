@@ -1,5 +1,13 @@
 <?php
+
+/*
+* Project: FI-WARE
+* Copyright (c) 2014 Center for Internet Excellence, University of Oulu, All Rights Reserved
+* For conditions of distribution and use, see copyright notice in LICENCE
+*/
+
 require 'db.php';
+require 'util.php';
 
 $components = get_supported_components();
 
@@ -50,6 +58,28 @@ if (isset ($_GET['poi_id']))
     }
     
     //TODO: handle other components from MongoDB...
+    
+    $mongodb = connectMongoDB("poi_db");
+    
+    foreach ($components as $component)
+    {
+        //skip fw_core, as it hase been already handled...
+        if ($component == "fw_core")
+        {
+            continue;
+        }
+        foreach(array_keys($data) as $uuid)
+        {
+//             print $uuid;
+            $comp_data = getComponentMongoDB($mongodb, $component, $uuid);
+            if ($comp_data != NULL)
+            {
+                $data[$uuid][$component] = $comp_data;
+            }
+        }
+        
+    }
+    
     
     $return_val = json_encode(array("pois" => $data));
     header("Content-type: application/json");

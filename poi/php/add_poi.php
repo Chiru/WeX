@@ -1,4 +1,11 @@
 <?php
+
+/*
+* Project: FI-WARE
+* Copyright (c) 2014 Center for Internet Excellence, University of Oulu, All Rights Reserved
+* For conditions of distribution and use, see copyright notice in LICENCE
+*/
+
 require 'db.php';
 if ($_SERVER['REQUEST_METHOD'] == 'POST' )
 {
@@ -24,6 +31,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' )
         $row = pg_fetch_row($uuid_result);
         $uuid = $row[0];
 //         print "Generated UUID: ". $uuid;
+        
+        $supported_components = get_supported_components();
         
         //process fw_core component
         if ($request_array["fw_core"])
@@ -78,23 +87,34 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' )
                 echo pg_last_error();
                 exit;
             }
-            
-            $new_poi_info = array();
-            $new_poi_info['uuid'] = $uuid;
-            $new_poi_info['timestamp'] = $timestamp;
-            $ret_val_arr = array("created_poi" => $new_poi_info);
-            $ret_val = json_encode($ret_val_arr);
-            
-            header("Access-Control-Allow-Origin: *");
-            print $ret_val;
         }
-        
-        //TODO: handle other components from MongoDB...
         
         else
         {
-            print "fw_core NOT found!";
+            header("HTTP/1.0 400 Bad Request");
+            die("'fw_core' not found, POI addition aborted!");
         }
+        
+        //Handle other components from MongoDB...
+        $mongodb = connectMongoDB("poi_db");
+        foreach($request_array as $comp_name => $comp_data) 
+        {
+            if (in_array($comp_name, $supported_components))
+            {
+                $comp_data["_id"] = $uuid;
+                $collection = $mongodb->$comp_name;
+                $collection->insert($comp_data);
+            }
+        }
+        
+        $new_poi_info = array();
+        $new_poi_info['uuid'] = $uuid;
+        $new_poi_info['timestamp'] = $timestamp;
+        $ret_val_arr = array("created_poi" => $new_poi_info);
+        $ret_val = json_encode($ret_val_arr);
+            
+        header("Access-Control-Allow-Origin: *");
+        print $ret_val;
     }
     
     else
