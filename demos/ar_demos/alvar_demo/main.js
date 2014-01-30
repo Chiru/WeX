@@ -6,12 +6,13 @@
     
     window.onload = function () {
 
+        AR.start();
         ARManager = AR.setupARManager();
         sceneManager = AR.setupSceneManager();
         sensorManager = AR.setupSensors();
         ARManager.setMarkerCallback(drawMesh);
         orientationListener = sensorManager.listenSensor( 'orientation' );
-        orientationListener.signal.add(sceneManager.setCameraOrientation);
+        orientationListener.addAction(sceneManager.setCameraOrientation);
 
         teapot = document.getElementById('teapot');
         twitter = document.getElementById('coffee');
@@ -30,7 +31,7 @@
             return;
             
         curElement.visible = visibilities[0];
-        sceneManager.setTransformFromMarker(transforms, curElement);    
+        sceneManager.setTransformFromMarker(transforms[0], curElement);    
     }
     
     function changeElement() {

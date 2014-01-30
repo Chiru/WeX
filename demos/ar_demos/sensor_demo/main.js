@@ -17,20 +17,21 @@
         document.querySelector( '#button_caf' ).onclick = get_caf;
         document.querySelector( '#button_rdv' ).onclick = get_rdv;
         document.querySelector( '#button_sen' ).onclick = get_sen;
-            
+        
+        AR.start(); 
+        sceneManager = AR.setupSceneManager();
         sensorManager = AR.setupSensors();
         communication = AR.setupConnection();
-        ARManager = AR.setupARManager();
-        sceneManager = AR.setupSceneManager();
-
+        //ARManager = AR.setupARManager();
         orientationListener = sensorManager.listenSensor( 'orientation' );
         sensorManager.getCurrentPosition(gpsHandler);
-
-        communication.addRemoteService("remoteDevicePOI", null, "http://chiru.cie.fi:8085");
+        //communication.addRemoteService("remoteDevicePOI", null, "http://chiru.cie.fi:8085");
+        communication.addRemoteService("remoteDevicePOI", null, "http://130.231.12.82//FI-WARE/php/poi_core/");
         AR.GUI.init();
-        AR.GUI.observeOrientation(orientationListener.signal);
-        orientationListener.signal.add(sceneManager.setCameraOrientation);
+        //AR.GUI.observeOrientation(orientationListener.signal);
+        orientationListener.addAction(sceneManager.setCameraOrientation);
         sceneManager.setCameraVerticalPlane(65);
+        
     };
 
     function get_res() {
@@ -50,17 +51,18 @@
     }
    
     function gpsHandler (position) {
-        currentLoc = position.coords;
+        //currentLoc = position.coords;
     }
     
     function getPOIsByCategory(gpsCoordinates, category) {
         var result;
         var restOptions = {
-            'function' : "radial_search",
+            'function' : "radial_search.php",
+            //'function' : "radial_search",
             'lat' : gpsCoordinates.latitude,
             'lon' : gpsCoordinates.longitude,
             'category' : category,
-            'query_id' : "testi_id",
+            //'query_id' : "testi_id",
             'radius' : 1500 
         }
         log("Requesting POIs...");
@@ -116,8 +118,8 @@
         if ( data.hasOwnProperty( "location" )) {
             location = data['location'];
 
-            if ( location['type'] === 'wsg84' ) {
-                gpsPoints[uuid] = location;
+            if ( location.hasOwnProperty( 'wsg84' )) {
+                gpsPoints[uuid] = location['wsg84'];
             }
         }
     }
@@ -147,7 +149,7 @@
         
         if(data.hasOwnProperty( "model" )) {
             var xml3dElement = document.getElementById(data['model_id']);
-            sceneManager.setPositionFromGeoLocation(currentLoc, gpsPoints[uuid], xml3dElement);
+            sceneManager.setPositionFromGeoLocation(currentLoc, gpsPoints[uuid], xml3dElement, 5, 50);
             sceneManager.addObjetcToBillboardSet(xml3dElement);
             xml3dElement.addEventListener("click", function(){
                 AR.GUI.clearData();AR.GUI.showData(miwi_ar_pois[uuid], uuid);

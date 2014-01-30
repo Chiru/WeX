@@ -56,7 +56,7 @@
                 
                 </defs>
 
-                <data id="ARBase" compute="basicMarkerTransforms, basicMarkerVisibilities, perspective = alvar.detect(arvideo, basicMarkers, flip)">
+                <data id="ALVAR" compute="basicMarkerTransforms, basicMarkerVisibilities, perspective = alvar.detect(arvideo, basicMarkers, flip)">
                   <bool name="flip">false</bool>
                     <int id = "basicMarkers" name="basicMarkers">32</int>
                       <texture name="arvideo">
@@ -65,7 +65,7 @@
                 </data>   
                  
                 <!-- Viewpoint with connection to AR data -->
-                <view id="View" perspective="#ARBase" />
+                <view id="View" perspective="#ALVAR" />
                  
                 <transform id="t_teapot_ar" scale="0.02000000 0.02000000 0.02000000" />
                 <group id = "teapot" transform="#t_teapot_ar" shader="#obj1Shader" visible="false">
@@ -106,7 +106,6 @@
 
 <!-- Dependencies -->
 <script type="text/javascript" src="../../../deps/js/xml3d.js"></script>
-<script type="text/javascript" src="../../../deps/js/Signals.js"></script>
 <script type="text/javascript" src="../../../deps/js/Util.js"></script>
 <script type="text/javascript" src="../../../deps/js/alvar.js"></script>
 
