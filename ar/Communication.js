@@ -1,5 +1,9 @@
-// For conditions of distribution and use, see copyright notice in LICENSE
-
+/**
+ *  Project: FI-WARE  
+ *  Copyright (c) 2014 Center for Internet Excellence, University of Oulu, All Rights Reserved
+ *  For conditions of distribution and use, see copyright notice in license.txt
+ */
+ 
 (function ( namespace, undefined ) {
     "use strict";
 
@@ -17,8 +21,8 @@
         // Setting options
         opts = extend( {}, defaults, options );
 
-        var remoteServices = {};
-
+        var remoteServices = {}, webSocketListeners = {};
+        
         this.init = function () {
             log( "Communication: Initialising..." );
         };
@@ -64,7 +68,7 @@
                 succesCallback(json);
             };
             
-            this.sendQueryDataRequest(restQueryURL, parsedResponse, errorCallback);
+            this.queryDataRequest(restQueryURL, parsedResponse, errorCallback);
         };
         
         this.sendData = function(serviceName, message, succesCallback, errorCallback) {
@@ -76,8 +80,8 @@
             this.sendDataRequest(restURL, succesCallback, errorCallback, message);
         };
         
-        this.sendQueryDataRequest = function(url, succesCallback ,errorCallback) {
-            this.sendMessage(createHTTPRequest(url, "GET"), succesCallback, errorCallback);
+        this.queryDataRequest = function(url, succesCallback ,errorCallback) {
+            this.sendMessage(createHTTPRequest(url, "GET"), succesCallback, errorCallback, null);
         };
         
         this.sendDataRequest = function(url, succesCallback , errorCallback, message) {
@@ -128,6 +132,14 @@
             } 
         }
         
+        this.listenWebsocket = function(url) {
+            webSocketListeners[url] = new AR.WebSocketListener(framework);
+            webSocketListeners[url].connect(url);
+            
+            return webSocketListeners[url];
+        }
+        
+
         this.init();
 
     };
