@@ -1,6 +1,9 @@
-// For conditions of distribution and use, see copyright notice in LICENSE
-
-
+/**
+ *  Project: FI-WARE  
+ *  Copyright (c) 2014 Center for Internet Excellence, University of Oulu, All Rights Reserved
+ *  For conditions of distribution and use, see copyright notice in license.txt
+ */
+ 
 (function ( namespace, undefined ) {
     "use strict";
 
@@ -21,25 +24,15 @@
         var flowAnalysers, observers, background, bgCtx, callBackFunctions = [], maxMarkersToTrack;
 
          flowAnalysers = {
-            'ARBase': false,
+            'ALVAR': false,
         };
 
         observers = {
-            'ARBase': VideoStreamObserver(),
+            'ALVAR': VideoStreamObserver(),
             'MarkerAnalyser': MarkerObserver(),
         };
         
-        var video, localVideoStream, alvar, numMarkers = 63;
-
-
-        var noCameraFeedError = function () {
-            log( "ARManager: ERROR: No camera feed available." );
-        };
-
-        var noUserMediaError = function () {
-            log( "ARManager: ERROR: No navigator.getUserMedia method available, check if your browser supports WebRTC." );
-        };
-
+        var alvar, numMarkers = 63;
 
         function VideoStreamObserver() {
             return new XML3DDataObserver( function ( records, observer ) {
@@ -63,14 +56,24 @@
 
         function MarkerObserver() {
             return new XML3DDataObserver( function ( records, observer ) {
-                var i, transforms = records[0].result.getValue("basicMarkerTransforms");
+                var i, j, k, transforms = records[0].result.getValue("basicMarkerTransforms");
                 var visibilities = records[0].result.getValue("basicMarkerVisibilities");
                 
-                    if(callBackFunctions.length === 0)
+                    if(!transforms || callBackFunctions.length === 0)
                         return;
-                        
-                    for(i in callBackFunctions) {
-                        callBackFunctions[i](transforms, visibilities);
+                      
+                    var mat4x4Array = [];        
+                    for(i = 0; i < transforms.length/16; ++i) {
+                        if(visibilities[i]) {
+                            var mat4x4 = [];
+                            for(j = 0; j < 16; ++j) {
+                                mat4x4[j] = transforms[i * 16 + j];
+                            }
+                            mat4x4Array[i] = mat4x4;
+                        }
+                    }
+                    for(k in callBackFunctions) {
+                        callBackFunctions[k](mat4x4Array, visibilities);
                     }
             } );
         }
@@ -88,8 +91,8 @@
         function initObservers() {
             var id;
             for ( id in flowAnalysers ) {
-                 if( id === 'ARBase' ) {
-                     observers['ARBase'].observe( flowAnalysers[id], {names: ["arvideo"]} );
+                 if( id === 'ALVAR' ) {
+                     observers['ALVAR'].observe( flowAnalysers[id], {names: ["arvideo"]} );
                      log( "ARManager: Observing Marker tags from the camera feed." );
                      observers['MarkerAnalyser'].observe( flowAnalysers[id], {names: ["basicMarkerTransforms", "basicMarkerVisibilities"]} );
                  }
@@ -98,21 +101,6 @@
 
         this.init = function () {
             log( "ARManager: Initialising..." );
-
-            window.URL = window.URL || window.webkitURL;
-            navigator.getUserMedia = (navigator.getUserMedia ||
-                navigator.webkitGetUserMedia ||
-                navigator.mozGetUserMedia ||
-                navigator.msGetUserMedia);
-
-            video = document.querySelector( 'video' );
-
-            if ( !video ) {
-                log( "ARManager: ERROR: No <video> tag was found." );
-                return;
-            }
-
-            this.getCameraFeed();
 
             background = document.getElementById( 'background' );
             
@@ -127,31 +115,10 @@
             log( "ARManager: Done." );
 
         };
-        
-        this.hasGetUserMedia = function () {
-            return (navigator.getUserMedia);
-        };
-
-        this.getCameraFeed = function () {
-            if ( this.hasGetUserMedia() ) {
-                log( "ARManager: Requesting Camera feed." );
-
-                navigator.getUserMedia( {video: true, audio: false}, function ( stream ) {
-                    video.src = window.URL.createObjectURL( stream );
-                    localVideoStream = stream;
-                    log( "ARManager: Got camera feed. url: " + video.src);
-                    video.play();
-                    
-                }, noCameraFeedError );
-            } else {
-
-                noUserMediaError();
-            }
-        };
-        
+    
         this.setMarkerCallback = function(callback) {
             callBackFunctions.push(callback);
-        }
+        };
         
         this.addMarker = function (markerId) {
         
