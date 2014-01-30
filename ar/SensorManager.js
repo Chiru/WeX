@@ -1,4 +1,8 @@
-// For conditions of distribution and use, see copyright notice in LICENSE
+/**
+ *  Project: FI-WARE  
+ *  Copyright (c) 2014 Center for Internet Excellence, University of Oulu, All Rights Reserved
+ *  For conditions of distribution and use, see copyright notice in license.txt
+ */
 
 (function ( namespace, undefined ) {
     "use strict";
@@ -9,15 +13,16 @@
 
         AR = namespace.AR;
 
-
-
     var SensorListener = function ( type ) {
 
-        var signal = new namespace.Signal(),
+        var callBackFunctions = [],
             eventType;
 
-        function callBack( e ) {
-            signal.dispatch( e );
+        function callBack(event) {
+            var i;
+            for(i in callBackFunctions) {
+                callBackFunctions[i](event);
+            }
         }
 
         if ( type === 'orientation' ) {
@@ -32,12 +37,9 @@
 
         window.addEventListener( eventType, callBack, false );
 
-        return {
-            stop: function () {
-                window.removeEventListener( eventType, callBack, false );
-                signal.dispose();
-            },
-            signal: signal
+        this.addAction = function(callback)
+        {
+            callBackFunctions.push(callback);
         };
     };
 
