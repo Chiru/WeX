@@ -1,4 +1,8 @@
-// For conditions of distribution and use, see copyright notice in LICENSE
+/**
+ *  Project: FI-WARE  
+ *  Copyright (c) 2014 Center for Internet Excellence, University of Oulu, All Rights Reserved
+ *  For conditions of distribution and use, see copyright notice in license.txt
+ */
 
 (function ( namespace, undefined ) {
     "use strict";
@@ -18,7 +22,7 @@
         opts = extend( {}, defaults, options );
 
         var scene, visibleObjects = [], activeCamera, xml3d, cameraVerticalPlane = 0, billboardSet = [], 
-            maxDistance = 50, transIndex = 0, up = new XML3DVec3(0,1,0);
+            transIndex = 0, up = new XML3DVec3(0,1,0);
 
         this.init = function () {
             log( "SceneManager: Initialising..." );
@@ -43,11 +47,11 @@
             return activeCamera;
         };
         
-        this.setPositionFromGeoLocation = function (curLoc, elemLoc, xml3dElement) {
+        this.setPositionFromGeoLocation = function (curLoc, elemLoc, xml3dElement, minDistance, maxDistance) {
 
             var transform, radius;
             transform = XML3D.URIResolver.resolveLocal(xml3dElement.getAttribute("transform"), xml3dElement.ownerDocument);
-
+            
             if(transform === null) {
                  transform = XML3D.createElement("transform");
                  transform.setAttribute("id", "transform" + transIndex);
@@ -58,7 +62,7 @@
             
             var geolocation = distanceBetween(curLoc, elemLoc);
             
-            radius = Math.min(geolocation.distance, maxDistance);
+            radius = Math.max(minDistance, Math.min(geolocation.distance, maxDistance));
 
             transform.translation.z = activeCamera.position.z + radius * Math.cos(Math.PI - geolocation.bearing);
             transform.translation.x = activeCamera.position.x + radius * Math.sin(Math.PI - geolocation.bearing);
@@ -77,7 +81,7 @@
 
             transform = XML3D.URIResolver.resolveLocal(xml3dElement.getAttribute("transform"), xml3dElement.ownerDocument);
 
-            if(transform === null)
+            if(!transform)
                 return;
                 
             //XML3D.math.mat4.toMat3(transforms, mat3x3);
@@ -119,7 +123,7 @@
 		    updateBillboardSet();
         };
         
-        this.translateCamera = function (curLoc, gpsPoint) {
+        this.translateCamera = function (curLoc, gpsPoint, maxStep) {
 
             if(!activeCamera || !curLoc || !gpsPoint)
                 return;
@@ -127,7 +131,7 @@
             var geolocation = distanceBetween(curLoc, gpsPoint);
             //log("distance: " + geolocation.distance);
             
-            if(geolocation.distance > 50)
+            if(geolocation.distance > maxStep)
                 return;
                 
             var radius = geolocation.distance;
