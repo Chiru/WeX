@@ -8,6 +8,8 @@
 
 require 'db.php';
 require 'util.php';
+include 'is_open.php';
+include 'time_span.php';
 
 $radius = 300;
 
@@ -73,13 +75,49 @@ if (isset ($_GET['lat']) and isset ($_GET['lon']))
   
     $json_struct = fw_core_pgsql2array($core_result, $incl_fw_core);
     
-    
-    //TODO: handle other components from MongoDB...
-    //for component in remaining_components:
-    //  for uuid in uuids:
-    //    get component data for uuid and append it to $json_struct...
-    
     $mongodb = connectMongoDB("poi_db");
+    
+    //Time constraints based filtering
+    if (isset($common_params['begin_time']) and isset($common_params['end_time']) and isset($common_params['min_minutes']))
+    {
+        $begin_time = $common_params['begin_time'];
+        $end_time = $common_params['end_time'];
+        
+        foreach(array_keys($json_struct["pois"]) as $uuid)
+        {
+	  
+            $fw_time = getComponentMongoDB($mongodb, "fw_time", $uuid);
+            
+            //Remove POI from $json_struct as it does not contain fw_time...
+            if ($fw_time == NULL)
+            {
+                unset($json_struct["pois"][$uuid]);
+                continue;
+            }
+            
+            $schedule = $fw_time['schedule'];
+            
+            //If schedule given as a search parameter, combine it with POIs schedule
+            //using 'and' operator
+            if (isset($common_params['schedule']))
+            {
+                $schedule = array("and" => array($schedule, $common_params['schedule']));
+            }
+
+            $res_begintime = array();
+            $res_endtime = array();
+            $start_event = array($begin_time['year'], $begin_time['month'], $begin_time['day'], $begin_time['hour'], $begin_time['minute'], $begin_time['second']);
+            $end_limit = array($end_time['year'], $end_time['month'], $end_time['day'], $end_time['hour'], $end_time['minute'], $end_time['second']);
+            $result = find_open_time($schedule, $common_params['min_minutes']*60, $start_event, $end_limit, $res_begintime, $res_endtime);
+
+            //Filter POIs from $json_struct that do not fulfill the time constraints...
+            if ($result == False)
+            {
+                unset($json_struct["pois"][$uuid]);
+            }
+            
+        }
+    }
     
     foreach ($common_params['components'] as $component)
     {
@@ -97,9 +135,7 @@ if (isset ($_GET['lat']) and isset ($_GET['lon']))
                 $json_struct["pois"][$uuid][$component] = $comp_data;
             }
         }
-        
     }
-    
     
     $return_val = json_encode($json_struct);
     header("Content-type: application/json");

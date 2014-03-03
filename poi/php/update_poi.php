@@ -7,6 +7,8 @@
 */
 
 require 'db.php';
+require 'data_manager.php';
+
 if ($_SERVER['REQUEST_METHOD'] == 'POST' )
 {
     $request_body = file_get_contents('php://input');
@@ -18,6 +20,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' )
     {
         $uuid = pg_escape_string(key($request_array));
         $poi_data = $request_array[$uuid];
+        
+        $is_valid = validate_poi_data($poi_data);
+        if (!$is_valid)
+        {
+            header("HTTP/1.0 400 Bad Request");
+            die ("POI data validation failed!");
+        }
         
         $pgcon = connectPostgreSQL("poidatabase");
         $uuid_exists_query = "SELECT count(*) FROM core_pois WHERE uuid='".$uuid."'";
@@ -95,16 +104,16 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' )
             }
             
             
-            $name = pg_escape_string($fw_core['name']);
+            $name = pg_escape_string($fw_core['name']['']);
             $category = pg_escape_string($fw_core['category']);
             
             $location = $fw_core['location'];
             $lat = NULL;
             $lon = NULL;
-            if ($location['wsg84'])
+            if ($location['wgs84'])
             {
-                $lat = pg_escape_string($location['wsg84']['latitude']);
-                $lon = pg_escape_string($location['wsg84']['longitude']);
+                $lat = pg_escape_string($location['wgs84']['latitude']);
+                $lon = pg_escape_string($location['wgs84']['longitude']);
             }
             if ($lat == NULL or $lon == NULL)
             {
@@ -113,11 +122,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' )
             }
             
             if (isset($fw_core['description']))
-                $description = pg_escape_string($fw_core['description']);
+                $description = pg_escape_string($fw_core['description']['']);
             if (isset($fw_core['label']))
-                $label = pg_escape_string($fw_core['label']);
+                $label = pg_escape_string($fw_core['label']['']);
             if (isset($fw_core['url']))
-                $url = pg_escape_string($fw_core['url']);
+                $url = pg_escape_string($fw_core['url']['']);
             if (isset($fw_core['thumbnail']))
                 $thumbnail = pg_escape_string($fw_core['thumbnail']);
             
@@ -126,9 +135,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' )
             $replace = "UPDATE core_pois SET name='$name', category='$category', location=ST_GeogFromText('POINT($lon $lat)'), description='$description', " .
             "label='$label', url='$url', thumbnail='$thumbnail', timestamp=$new_timestamp WHERE uuid='$uuid';";
             
-            //(uuid, name, category, location, description, label, url, thumbnail, timestamp) " . 
-            //"VALUES('$uuid', '$name', '$category', ST_GeogFromText('POINT($lon $lat)'), '$description', '$label', '$url', '$thumbnail', $update_timestamp);";
-            
             $replace_result = pg_query($replace);
             if (!$replace_result)
             {
@@ -136,16 +142,15 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' )
                 echo pg_last_error();
                 exit;
             }
-
-        
         }
         
         $supported_components = get_supported_components();
         
-        //Handle other components from MongoDB...
+        //Update other components to MongoDB...
         $mongodb = connectMongoDB("poi_db");
         foreach($poi_data as $comp_name => $comp_data) 
         {
+            //Skip fw_core as it has been allready processed...
             if ($comp_name == "fw_core")
             {
                 continue;
@@ -182,13 +187,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' )
                             $curr_timestamp = $existing_component['last_update']['timestamp'];
                             if ($curr_timestamp != $update_timestamp) {
                                 header("HTTP/1.0 400 Bad Request");
-                                die("The given last_update:timestamp (". $update_timestamp .") does not match the value in the database (". $curr_timestamp .") in fw_core!");
+                                die("The given last_update:timestamp (". $update_timestamp .") does not match the value in the database (". $curr_timestamp .") in $comp_name!");
                             }
                         }   
                     }
-                }
-                
-                //TODO: Luo/päivitä timestamp arvo!
+                }                
                 
                 if (!isset($comp_data['last_update']))
                 {

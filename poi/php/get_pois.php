@@ -78,8 +78,7 @@ if (isset ($_GET['poi_id']))
             }
         }
         
-    }
-    
+    }            
     
     $return_val = json_encode(array("pois" => $data));
     header("Content-type: application/json");

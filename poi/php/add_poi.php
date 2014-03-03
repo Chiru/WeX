@@ -7,6 +7,8 @@
 */
 
 require 'db.php';
+require 'data_manager.php';
+
 if ($_SERVER['REQUEST_METHOD'] == 'POST' )
 {
     $request_body = file_get_contents('php://input');
@@ -18,6 +20,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' )
     {
 //         print "JSON decoded succesfully!";
         
+        $is_valid = validate_poi_data($request_array);
+        if (!$is_valid)
+        {
+            header("HTTP/1.0 400 Bad Request");
+            die ("POI data validation failed!");
+        }
+              
         $pgcon = connectPostgreSQL("poidatabase");
         $uuid_generate_query = "SELECT uuid_generate_v4()";
         $uuid_result = pg_query($uuid_generate_query);
@@ -50,16 +59,16 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' )
                 die ("Error: 'name', 'category' and 'location' are mandatory fields in fw_core!");
             }
             
-            $name = pg_escape_string($fw_core['name']);
+            $name = pg_escape_string($fw_core['name']['']);
             $category = pg_escape_string($fw_core['category']);
             
             $location = $fw_core['location'];
             $lat = NULL;
             $lon = NULL;
-            if ($location['wsg84'])
+            if ($location['wgs84'])
             {
-                $lat = pg_escape_string($location['wsg84']['latitude']);
-                $lon = pg_escape_string($location['wsg84']['longitude']);
+                $lat = pg_escape_string($location['wgs84']['latitude']);
+                $lon = pg_escape_string($location['wgs84']['longitude']);
             }
             if ($lat == NULL or $lon == NULL)
             {
@@ -68,11 +77,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' )
             }
             
             if (isset($fw_core['description']))
-                $description = pg_escape_string($fw_core['description']);
+                $description = pg_escape_string($fw_core['description']['']);
             if (isset($fw_core['label']))
-                $label = pg_escape_string($fw_core['label']);
+                $label = pg_escape_string($fw_core['label']['']);
             if (isset($fw_core['url']))
-                $url = pg_escape_string($fw_core['url']);
+                $url = pg_escape_string($fw_core['url']['']);
             if (isset($fw_core['thumbnail']))
                 $thumbnail = pg_escape_string($fw_core['thumbnail']);
             $timestamp = time();
@@ -95,10 +104,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' )
             die("'fw_core' not found, POI addition aborted!");
         }
         
-        //Handle other components from MongoDB...
+        //Insert other components to MongoDB...
         $mongodb = connectMongoDB("poi_db");
         foreach($request_array as $comp_name => $comp_data) 
         {
+            if ($comp_name == 'fw_core')
+                continue;
             if (in_array($comp_name, $supported_components))
             {
                 $comp_data["_id"] = $uuid;

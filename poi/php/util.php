@@ -6,6 +6,8 @@
 * For conditions of distribution and use, see copyright notice in LICENCE
 */
 
+require 'data_manager.php';
+
 function handle_common_search_params()
 {
     $params = array();
@@ -48,13 +50,14 @@ function handle_common_search_params()
     
     if (isset($_GET['begin_time']) and isset($_GET['end_time']))
     {
+        $min_minutes = 1;  //Default value
         if (isset($_GET['min_minutes']))
         {
             $min_minutes = $_GET['min_minutes'];
             if (!is_numeric($min_minutes))
             {
                 header("HTTP/1.0 400 Bad Request");
-                die("'min_minutes' must be a positive integer value1!");
+                die("'min_minutes' must be a positive integer value!");
             }
             
             $min_minutes = intval($min_minutes);
@@ -62,9 +65,33 @@ function handle_common_search_params()
             if ($min_minutes < 1)
             {
                 header("HTTP/1.0 400 Bad Request");
-                die("'min_minutes' must be a positive integer value2!");
+                die("'min_minutes' must be a positive integer value!");
             }
-            $params['min_minutes'] = $min_minutes;
+        }
+        $params['min_minutes'] = $min_minutes;
+        
+        if (isset($_GET['schedule']))
+        {
+            $schedule_json = $_GET['schedule'];
+            $schedule = json_decode($schedule_json);
+            if ($schedule == NULL)
+            {
+                header("HTTP/1.0 400 Bad Request");
+                die("JSON decoding failed for 'schedule'. Is it valid JSON and properly url-encoded?");
+            }
+            
+            //TODO: Validate the schedule JSON against schema!
+            
+            $schedule_valid = validate_poi_data($schedule, 'schedule_schema_3.3.json');
+            if (!$schedule_valid)
+            {
+                header("HTTP/1.0 400 Bad Request");
+                die("'schedule' does not validate against JSON schema!");
+            }
+            
+            $schedule = json_decode($schedule_json, true);
+            
+            $params['schedule'] = $schedule;
         }
         
         $begin_time = $_GET['begin_time'];
@@ -82,6 +109,8 @@ function handle_common_search_params()
             die("Error parsing 'end_time'!");
         }
         
+        $params['begin_time'] = $begin_time_obj;
+        $params['end_time'] = $end_time_obj;
     }
     
     return $params;

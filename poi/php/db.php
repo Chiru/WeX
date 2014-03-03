@@ -6,9 +6,10 @@
 * For conditions of distribution and use, see copyright notice in LICENCE
 */
 
+
 function get_supported_components()
 {
-    $components = array("fw_core", "fw_contact", "fw_xml3d", "fw_media", "fw_time", "fw_testComponent");
+    $components = array("fw_core", "fw_contact", "fw_xml3d", "fw_media", "fw_time", "fw_sensor", "fw_marker", "fw_testComponent");
 
     return $components;
 }
@@ -39,7 +40,7 @@ function fw_core_pgsql2array($core_result, $incl_fw_core)
         //fw_core component is included in the request...
         if ($incl_fw_core == TRUE) {
             $core_component = array();
-            $core_component["location"] = array("wsg84" => array("latitude" => $row['lat'], "longitude" => $row['lon']));
+            $core_component["location"] = array("wgs84" => array("latitude" => intval($row['lat']), "longitude" => intval($row['lon'])));
             
             if ($row['timestamp'] != NULL)
             {
@@ -58,7 +59,16 @@ function fw_core_pgsql2array($core_result, $incl_fw_core)
                     continue;
                     
                 if ($row[$key] != NULL)
-                    $core_component[$key] = $row[$key];
+                {
+                    if ($key == 'name' or $key == 'label' or $key == 'description' or $key == 'url')
+                    {
+                        $core_component[$key] = array("" => $row[$key]);
+                    }
+                    else
+                    {
+                        $core_component[$key] = $row[$key];
+                    }
+                }
             }
             
             $poi['fw_core'] = $core_component;
