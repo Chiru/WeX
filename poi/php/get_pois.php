@@ -22,22 +22,35 @@ if (isset ($_GET['poi_id']))
         $esc_components = pg_escape_string($component);
         $components = explode(",", $esc_components);
     }
+    
+    $fetch_for_update = false;
+    if (isset($_GET['fetch_for_update']))
+    {
+        if ($_GET['fetch_for_update'] == "true")
+        {
+            $fetch_for_update = true;
+        }
+    }
 
     $data = array();
     $esc_ids_arr = explode(",", $esc_ids);
     foreach($esc_ids_arr as $poi_uuid)
     {
         $poi_uuid = str_replace("'", "", $poi_uuid);
-        $data[$poi_uuid] = (object) null;
+        $data[$poi_uuid] = array();
     }
+    
+    $db_opts = get_db_options();
     
     //Include fw_core in result data...
     if (in_array("fw_core", $components))
     {
-        $pgcon = connectPostgreSQL("poidatabase");
+        
+        $pgcon = connectPostgreSQL($db_opts["sql_db_name"]);
+        $fw_core_tbl = $db_opts['fw_core_table_name'];
         
         $query = "SELECT uuid, name, category, description, label, url, thumbnail, st_x(location::geometry) as lon, st_y(location::geometry) as lat, st_astext(geometry) as geometry, timestamp " .
-            "FROM core_pois WHERE uuid IN ($esc_ids)";
+            "FROM $fw_core_tbl WHERE uuid IN ($esc_ids)";
 
         $core_result = pg_query($query);
         
@@ -57,9 +70,9 @@ if (isset ($_GET['poi_id']))
         }
     }
     
-    //TODO: handle other components from MongoDB...
+    //Handle other components from MongoDB...
     
-    $mongodb = connectMongoDB("poi_db");
+    $mongodb = connectMongoDB($db_opts['mongo_db_name']);
     
     foreach ($components as $component)
     {
@@ -68,10 +81,11 @@ if (isset ($_GET['poi_id']))
         {
             continue;
         }
+        
         foreach(array_keys($data) as $uuid)
         {
 //             print $uuid;
-            $comp_data = getComponentMongoDB($mongodb, $component, $uuid);
+            $comp_data = getComponentMongoDB($mongodb, $component, $uuid, $fetch_for_update);
             if ($comp_data != NULL)
             {
                 $data[$uuid][$component] = $comp_data;

@@ -106,9 +106,10 @@ function open_until($start_event, $schedule, $end_limit) { // : {}
   */
   $result = $start_event; // Do NOT modify elements! Replace as the whole.
   $end_event = $end_limit;
-
-    foreach($schedule as $key => $contents){ // implicit AND
-    $operands = $schedule[$key];
+  //echo gettype($schedule);
+  //echo "<br>";
+    foreach($schedule as $key => $operands){ // implicit AND
+      //$operands = $schedule[$key];
     switch($key) {
       case "or":  // open, if any of the subschedules provides open
         $next_event = $start_event; // end of open time found so far
@@ -164,13 +165,22 @@ function open_until($start_event, $schedule, $end_limit) { // : {}
           $nexthr[$i - 3] = $start_event[$i];
         }
         if (!later_than($nexthr, $operands)) {
+        if (count($operands) == 1){
+          $operands[] = 0;
+          }
+        if (count($operands) == 2){
+          $operands[] = 0;
+                }
+
+          //echo var_dump($start_event);
+          //echo var_dump($operands);
           $end_event = array(
               $start_event[0], // date from start_event
               $start_event[1],
               $start_event[2],
               $operands[0],
-              (($operands[1]) ? $operands[1] : 0),
-              (($operands[2]) ? $operands[2] : 0)
+              $operands[1],
+              $operands[2]
 			     );
         } else {
 // *          end_event = start_event; // old code
@@ -299,13 +309,19 @@ function closed_until($start_event, $schedule, $end_limit) { // : {}
             $nexthr[$i - 3] = $start_event[$i];
           }
           if (!later_than($nexthr, $operands)) {
+          if (count($operands) == 1){
+            $operands[] = 0;
+            }
+          if (count($operands) == 2){
+            $operands[] = 0;
+                }
             $end_event = array(
                 $start_event[0], // date from start event
                 $start_event[1],
                 $start_event[2],
                 $operands[0],
-                (($operands[1]) ? $operands[1] : 0),
-                (($operands[2]) ? $operands[2] : 0)
+                $operands[1],
+                $operands[2]
 			       );
           } else {
   // *          end_event = start_event; // old code

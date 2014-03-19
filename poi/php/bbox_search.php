@@ -30,19 +30,20 @@ if (isset ($_GET['north']) and isset ($_GET['south']) and isset ($_GET['east']) 
     }
   
     $common_params = handle_common_search_params();
-  
-    $pgcon = connectPostgreSQL("poidatabase");
+    $db_opts = get_db_options();
+    $pgcon = connectPostgreSQL($db_opts["sql_db_name"]);
+    $fw_core_tbl = $db_opts['fw_core_table_name'];
     
     if (isset($esc_categories))
     {
         $query = "SELECT uuid, name, category, description, label, url, thumbnail, st_x(location::geometry) as lon, st_y(location::geometry) as lat, st_astext(geometry) as geometry, timestamp " .
-        "FROM core_pois WHERE ST_Intersects(ST_Geogfromtext('POLYGON(($west $south, $east $south, $east $north, $west $north, $west $south))'), location) " .
+        "FROM $fw_core_tbl WHERE ST_Intersects(ST_Geogfromtext('POLYGON(($west $south, $east $south, $east $north, $west $north, $west $south))'), location) " .
         "AND category in (" . $common_params['categories'] . ") LIMIT " . $common_params['max_results'];
     }
     
     else {
         $query = "SELECT uuid, name, category, description, label, url, thumbnail, st_x(location::geometry) as lon, st_y(location::geometry) as lat, st_astext(geometry) as geometry, timestamp " .
-        "FROM core_pois WHERE ST_Intersects(ST_Geogfromtext('POLYGON(($west $south, $east $south, $east $north, $west $north, $west $south))'), location) LIMIT " . $common_params['max_results'];
+        "FROM $fw_core_tbl WHERE ST_Intersects(ST_Geogfromtext('POLYGON(($west $south, $east $south, $east $north, $west $north, $west $south))'), location) LIMIT " . $common_params['max_results'];
     }
 //     echo "<br>" . $query;
 
@@ -62,11 +63,52 @@ if (isset ($_GET['north']) and isset ($_GET['south']) and isset ($_GET['east']) 
     }
   
     $json_struct = fw_core_pgsql2array($core_result, $incl_fw_core);
+           
+    $mongodb = connectMongoDB($db_opts['mongo_db_name']);
     
-    //TODO: handle other components from MongoDB...
+    //Time constraints based filtering
+    if (isset($common_params['begin_time']) and isset($common_params['end_time']) and isset($common_params['min_minutes']))
+    {
+        $begin_time = $common_params['begin_time'];
+        $end_time = $common_params['end_time'];
+        
+        foreach(array_keys($json_struct["pois"]) as $uuid)
+        {
+      
+            $fw_time = getComponentMongoDB($mongodb, "fw_time", $uuid, false);
+            
+            //Remove POI from $json_struct as it does not contain fw_time...
+            if ($fw_time == NULL)
+            {
+                unset($json_struct["pois"][$uuid]);
+                continue;
+            }
+            
+            $schedule = $fw_time['schedule'];
+            
+            //If schedule given as a search parameter, combine it with POIs schedule
+            //using 'and' operator
+            if (isset($common_params['schedule']))
+            {
+                $schedule = array("and" => array($schedule, $common_params['schedule']));
+            }
+
+            $res_begintime = array();
+            $res_endtime = array();
+            $start_event = array($begin_time['year'], $begin_time['month'], $begin_time['day'], $begin_time['hour'], $begin_time['minute'], $begin_time['second']);
+            $end_limit = array($end_time['year'], $end_time['month'], $end_time['day'], $end_time['hour'], $end_time['minute'], $end_time['second']);
+            $result = find_open_time($schedule, $common_params['min_minutes']*60, $start_event, $end_limit, $res_begintime, $res_endtime);
+
+            //Filter POIs from $json_struct that do not fulfill the time constraints...
+            if ($result == False)
+            {
+                unset($json_struct["pois"][$uuid]);
+            }
+            
+        }
+    }
     
-    $mongodb = connectMongoDB("poi_db");
-    
+    //Handle other components from MongoDB...
     foreach ($common_params['components'] as $component)
     {
         //skip fw_core, as it hase been already handled...
@@ -77,7 +119,7 @@ if (isset ($_GET['north']) and isset ($_GET['south']) and isset ($_GET['east']) 
         foreach(array_keys($json_struct["pois"]) as $uuid)
         {
 //             print $uuid;
-            $comp_data = getComponentMongoDB($mongodb, $component, $uuid);
+            $comp_data = getComponentMongoDB($mongodb, $component, $uuid, false);
             if ($comp_data != NULL)
             {
                 $json_struct["pois"][$uuid][$component] = $comp_data;

@@ -26,8 +26,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' )
             header("HTTP/1.0 400 Bad Request");
             die ("POI data validation failed!");
         }
-              
-        $pgcon = connectPostgreSQL("poidatabase");
+        
+        $db_opts = get_db_options();
+        $pgcon = connectPostgreSQL($db_opts["sql_db_name"]);
         $uuid_generate_query = "SELECT uuid_generate_v4()";
         $uuid_result = pg_query($uuid_generate_query);
         
@@ -85,7 +86,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' )
             if (isset($fw_core['thumbnail']))
                 $thumbnail = pg_escape_string($fw_core['thumbnail']);
             $timestamp = time();
-            $insert = "INSERT INTO core_pois (uuid, name, category, location, description, label, url, thumbnail, timestamp) " . 
+            $fw_core_tbl = $db_opts['fw_core_table_name'];
+            $insert = "INSERT INTO $fw_core_tbl (uuid, name, category, location, description, label, url, thumbnail, timestamp) " . 
             "VALUES('$uuid', '$name', '$category', ST_GeogFromText('POINT($lon $lat)'), '$description', '$label', '$url', '$thumbnail', $timestamp);";
             
             $insert_result = pg_query($insert);
@@ -105,7 +107,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' )
         }
         
         //Insert other components to MongoDB...
-        $mongodb = connectMongoDB("poi_db");
+        $mongodb = connectMongoDB($db_opts['mongo_db_name']);
         foreach($request_array as $comp_name => $comp_data) 
         {
             if ($comp_name == 'fw_core')

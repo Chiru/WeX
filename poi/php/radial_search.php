@@ -44,17 +44,21 @@ if (isset ($_GET['lat']) and isset ($_GET['lon']))
   
     $common_params = handle_common_search_params();
     
-    $pgcon = connectPostgreSQL("poidatabase");
+    $db_opts = get_db_options();
+    
+    $pgcon = connectPostgreSQL($db_opts['sql_db_name']);
+    
+    $fw_core_tbl = $db_opts['fw_core_table_name'];
     
     if (isset($common_params['categories']))
     {
         $query = "SELECT uuid, name, category, description, label, url, thumbnail, st_x(location::geometry) as lon, st_y(location::geometry) as lat, st_astext(geometry) as geometry, timestamp " .
-        "FROM core_pois WHERE ST_DWithin(location, ST_GeogFromText('POINT($lon $lat)'), $radius) AND category in (" . $common_params['categories'] . ") LIMIT " . $common_params['max_results'];
+        "FROM $fw_core_tbl WHERE ST_DWithin(location, ST_GeogFromText('POINT($lon $lat)'), $radius) AND category in (" . $common_params['categories'] . ") LIMIT " . $common_params['max_results'];
     }
     
     else {
         $query = "SELECT uuid, name, category, description, label, url, thumbnail, st_x(location::geometry) as lon, st_y(location::geometry) as lat, st_astext(geometry) as geometry, timestamp " .
-        "FROM core_pois WHERE ST_DWithin(location, ST_GeogFromText('POINT($lon $lat)'), $radius) LIMIT " . $common_params['max_results'];
+        "FROM $fw_core_tbl WHERE ST_DWithin(location, ST_GeogFromText('POINT($lon $lat)'), $radius) LIMIT " . $common_params['max_results'];
     }
 //     echo "<br>" . $query;
 
@@ -75,7 +79,7 @@ if (isset ($_GET['lat']) and isset ($_GET['lon']))
   
     $json_struct = fw_core_pgsql2array($core_result, $incl_fw_core);
     
-    $mongodb = connectMongoDB("poi_db");
+    $mongodb = connectMongoDB($db_opts['mongo_db_name']);
     
     //Time constraints based filtering
     if (isset($common_params['begin_time']) and isset($common_params['end_time']) and isset($common_params['min_minutes']))
@@ -86,7 +90,7 @@ if (isset ($_GET['lat']) and isset ($_GET['lon']))
         foreach(array_keys($json_struct["pois"]) as $uuid)
         {
 	  
-            $fw_time = getComponentMongoDB($mongodb, "fw_time", $uuid);
+            $fw_time = getComponentMongoDB($mongodb, "fw_time", $uuid, false);
             
             //Remove POI from $json_struct as it does not contain fw_time...
             if ($fw_time == NULL)
@@ -129,7 +133,7 @@ if (isset ($_GET['lat']) and isset ($_GET['lon']))
         foreach(array_keys($json_struct["pois"]) as $uuid)
         {
 //             print $uuid;
-            $comp_data = getComponentMongoDB($mongodb, $component, $uuid);
+            $comp_data = getComponentMongoDB($mongodb, $component, $uuid, false);
             if ($comp_data != NULL)
             {
                 $json_struct["pois"][$uuid][$component] = $comp_data;

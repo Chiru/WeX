@@ -1,5 +1,7 @@
 <?php
 
+// Dependency: JSON Schema validator, 
+// https://github.com/justinrainbow/json-schema
 require 'vendor/autoload.php';
 
 function validate_poi_data($poi_data, $poi_schema_file = 'poi_schema_3.3.json')

@@ -6,10 +6,22 @@
 * For conditions of distribution and use, see copyright notice in LICENCE
 */
 
+//Database options
+function get_db_options()
+{
+    $options = array();
+    $options["sql_db_name"] = "poidatabase";
+    $options["fw_core_table_name"] = "fw_core";
+    
+    $options["mongo_db_name"] = "poi_db";
+    
+    return $options;
+}
 
 function get_supported_components()
 {
-    $components = array("fw_core", "fw_contact", "fw_xml3d", "fw_media", "fw_time", "fw_sensor", "fw_marker", "fw_testComponent");
+    $components = array("fw_core", "fw_contact", "fw_xml3d", "fw_media", 
+        "fw_time", "fw_sensor", "fw_marker", "fw_relationships");
 
     return $components;
 }
@@ -40,7 +52,7 @@ function fw_core_pgsql2array($core_result, $incl_fw_core)
         //fw_core component is included in the request...
         if ($incl_fw_core == TRUE) {
             $core_component = array();
-            $core_component["location"] = array("wgs84" => array("latitude" => intval($row['lat']), "longitude" => intval($row['lon'])));
+            $core_component["location"] = array("wgs84" => array("latitude" => floatval($row['lat']), "longitude" => floatval($row['lon'])));
             
             if ($row['timestamp'] != NULL)
             {
@@ -83,8 +95,6 @@ function fw_core_pgsql2array($core_result, $incl_fw_core)
     return $json_struct;
 }
 
-
-
 function connectMongoDB($db_name)
 {
     try {
@@ -97,11 +107,38 @@ function connectMongoDB($db_name)
     }
 }
 
-function getComponentMongoDB($db, $component_name, $uuid)
+//Retrieves a data component from MongoDB for a given UUID
+function getComponentMongoDB($db, $component_name, $uuid, $fetch_for_update)
 {
+    if ($component_name == "fw_relationships")
+    {
+        $relationships = findRelationshipsForUUID($db, $uuid, $fetch_for_update);
+        return $relationships;
+    }
+    
     $collection = $db->$component_name;
     $component = $collection->findOne(array("_id" => $uuid), array("_id" => false));
     return $component;
+}
+
+//Finds all documents from "fw_relations" collection in MongoDB where the given UUID is present,
+//either in "subject" or "object" field
+function findRelationshipsForUUID($db, $uuid, $fetch_for_update)
+{
+    $collection = $db->fw_relationships;
+    if ($fetch_for_update == True) {
+        $relationships = $collection->findOne(array("subject" => $uuid),
+            array("_id" => false));
+    }
+    
+    else
+    {
+        $relationships = $collection->findOne(array('$or' => array(
+            array("subject" => $uuid), 
+            array("objects" => $uuid))),
+            array("_id" => false));
+    }
+    return $relationships;
 }
 
 ?>

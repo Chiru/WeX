@@ -14,9 +14,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'DELETE' )
     if (isset ($_GET['poi_id']))
     {
         $uuid = pg_escape_string($_GET['poi_id']);
-        $pgcon = connectPostgreSQL("poidatabase");
         
-        $del_stmt = "DELETE FROM core_pois WHERE uuid='$uuid'";
+        $db_opts = get_db_options();
+        $pgcon = connectPostgreSQL($db_opts["sql_db_name"]);
+        $fw_core_tbl = $db_opts['fw_core_table_name'];
+        
+        $del_stmt = "DELETE FROM $fw_core_tbl WHERE uuid='$uuid'";
 
         $del_result = pg_query($del_stmt);
         
@@ -36,7 +39,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'DELETE' )
         }
         
         $components = get_supported_components();
-        $m_db = connectMongoDB("poi_db");
+        $m_db = connectMongoDB($db_opts['mongo_db_name']);
         foreach($components as $component)
         {
             if ($component == "fw_core")

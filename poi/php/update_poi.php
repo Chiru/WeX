@@ -28,8 +28,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' )
             die ("POI data validation failed!");
         }
         
-        $pgcon = connectPostgreSQL("poidatabase");
-        $uuid_exists_query = "SELECT count(*) FROM core_pois WHERE uuid='".$uuid."'";
+        
+        $db_opts = get_db_options();
+        $pgcon = connectPostgreSQL($db_opts["sql_db_name"]);
+        $fw_core_tbl = $db_opts['fw_core_table_name'];
+        $uuid_exists_query = "SELECT count(*) FROM $fw_core_tbl WHERE uuid='".$uuid."'";
         $uuid_exists_result = pg_query($uuid_exists_query);
             
         if (!$uuid_exists_result)
@@ -82,7 +85,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' )
             }
             
             //....
-            $curr_timestamp_query = "SELECT timestamp FROM core_pois WHERE uuid='".$uuid."'";
+            $curr_timestamp_query = "SELECT timestamp FROM $fw_core_tbl WHERE uuid='".$uuid."'";
             $curr_timestamp_result = pg_query($curr_timestamp_query);
         
             if (!$curr_timestamp_result)
@@ -132,7 +135,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' )
             
             $new_timestamp = time();
             
-            $replace = "UPDATE core_pois SET name='$name', category='$category', location=ST_GeogFromText('POINT($lon $lat)'), description='$description', " .
+            $replace = "UPDATE $fw_core_tbl SET name='$name', category='$category', location=ST_GeogFromText('POINT($lon $lat)'), description='$description', " .
             "label='$label', url='$url', thumbnail='$thumbnail', timestamp=$new_timestamp WHERE uuid='$uuid';";
             
             $replace_result = pg_query($replace);
@@ -147,7 +150,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' )
         $supported_components = get_supported_components();
         
         //Update other components to MongoDB...
-        $mongodb = connectMongoDB("poi_db");
+        $mongodb = connectMongoDB($db_opts['mongo_db_name']);
         foreach($poi_data as $comp_name => $comp_data) 
         {
             //Skip fw_core as it has been allready processed...
@@ -155,11 +158,85 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' )
             {
                 continue;
             }
+            
+            //Process update for fw_relationships. 
+            //Each relationship object is stored as a single document in MongoDB,
+            //identified by MongoDB's internal identifier (ObjectID).
+            if ($comp_name == "fw_relationships")
+            {
+                foreach($comp_data as $relationship)
+                {
+                    //Relationships are identified by the pair (subject, predicate)
+                    $subj = $relationship['subject'];
+                    $pred = $relationship['predicate'];
+                    $pred_type = key($pred);
+                    $pred_value = $pred[$pred_type];
+                    $rel_id = "";
+                    
+                    if ($subj != $uuid)
+                    {
+                        header("HTTP/1.0 400 Bad Request");
+                        die("The subject does match POI UUID ($uuid) in relationship ($subj, $pred_type:$pred_value) !");
+                    }
+                    
+                    $rel_collection = $mongodb->fw_relationships;
+                    $existing_rel = $rel_collection->findOne(array("subject" => $uuid, "predicate" => $pred));
+                    if ($existing_rel != NULL)
+                    {
+                        $rel_id = $existing_rel['_id'];
+                        $update_timestamp = 0;
+                        
+                        if (isset($relationship['last_update']))
+                        {
+                            $last_update = $relationship['last_update'];
+                            if (isset($last_update['timestamp']))
+                            {
+                                $update_timestamp = intval($last_update['timestamp']);
+                            }
+                        }
+                        
+                        if ($update_timestamp == 0)
+                        {
+                            header("HTTP/1.0 400 Bad Request");
+                            die("No valid 'last_update:timestamp' value was found for relationship ($subj, $pred_type:$pred_value) !");
+                        }
+                        
+                        if (isset($existing_rel['last_update']))
+                        {
+                            if (isset($existing_rel['last_update']['timestamp']))
+                            {
+                                $curr_timestamp = $existing_rel['last_update']['timestamp'];
+                                if ($curr_timestamp != $update_timestamp) {
+                                    header("HTTP/1.0 400 Bad Request");
+                                    die("The given last_update:timestamp (". $update_timestamp .") does not match the value in the database (". $curr_timestamp .") in relationship ($subj, $pred_type:$pred_value) !");
+                                }
+                            }
+                        }
+                    }
+                    
+                    if (!isset($relationship['last_update']))
+                    {
+                        $relationship['last_update'] = array();
+                    }
+                    $relationship['last_update']['timestamp'] = time();
+                    
+                    if ($rel_id != "")
+                    {
+                        $relationship["_id"] = $rel_id;
+                    }
+                    $upd_criteria = array("subject" => $uuid, "predicate" => $pred);
+                    $rel_collection->update($upd_criteria, $relationship, array("upsert" => true));
+                }
+                
+                continue;
+                
+            }
+            
             if (in_array($comp_name, $supported_components))
             {
                 $collection = $mongodb->$comp_name;
                 
-                $existing_component = getComponentMongoDB($mongodb, $comp_name, $uuid);
+                $existing_component = getComponentMongoDB($mongodb, $comp_name, $uuid, true);
                 if ($existing_component != NULL)
                 {
                     $update_timestamp = 0;
