@@ -77,18 +77,15 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' )
                 die ("Failed to parse location: lat or lon is NULL!");
             }
             
-            if (isset($fw_core['description']))
-                $description = pg_escape_string($fw_core['description']['']);
-            if (isset($fw_core['label']))
-                $label = pg_escape_string($fw_core['label']['']);
-            if (isset($fw_core['url']))
-                $url = pg_escape_string($fw_core['url']['']);
+            $fw_core_intl_tbl = $db_opts['fw_core_intl_table_name'];
+            update_fw_core_intl_properties($pgcon, $fw_core_intl_tbl, $uuid, $fw_core);
+
             if (isset($fw_core['thumbnail']))
                 $thumbnail = pg_escape_string($fw_core['thumbnail']);
             $timestamp = time();
             $fw_core_tbl = $db_opts['fw_core_table_name'];
-            $insert = "INSERT INTO $fw_core_tbl (uuid, name, category, location, description, label, url, thumbnail, timestamp) " . 
-            "VALUES('$uuid', '$name', '$category', ST_GeogFromText('POINT($lon $lat)'), '$description', '$label', '$url', '$thumbnail', $timestamp);";
+            $insert = "INSERT INTO $fw_core_tbl (uuid, category, location, thumbnail, timestamp) " . 
+            "VALUES('$uuid', '$category', ST_GeogFromText('POINT($lon $lat)'), '$thumbnail', $timestamp);";
             
             $insert_result = pg_query($insert);
             if (!$insert_result)

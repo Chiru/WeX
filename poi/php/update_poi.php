@@ -57,6 +57,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' )
             $label = NULL;
             $url = NULL;
             $thumbnail = NULL;
+            $source_name = NULL;
+            $source_website = NULL;
+            $source_id = NULL;
+            $source_licence = NULL;
             
 //             print "fw_core found!";
             $fw_core = $poi_data["fw_core"];
@@ -106,8 +110,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' )
                 
             }
             
-            
-            $name = pg_escape_string($fw_core['name']['']);
+            $fw_core_intl_tbl = $db_opts['fw_core_intl_table_name'];
+
+            update_fw_core_intl_properties($pgcon, $fw_core_intl_tbl, $uuid, $fw_core);
+                      
             $category = pg_escape_string($fw_core['category']);
             
             $location = $fw_core['location'];
@@ -124,22 +130,33 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' )
                 die ("Failed to parse location: lat or lon is NULL!");
             }
             
-            if (isset($fw_core['description']))
-                $description = pg_escape_string($fw_core['description']['']);
-            if (isset($fw_core['label']))
-                $label = pg_escape_string($fw_core['label']['']);
-            if (isset($fw_core['url']))
-                $url = pg_escape_string($fw_core['url']['']);
+
             if (isset($fw_core['thumbnail']))
                 $thumbnail = pg_escape_string($fw_core['thumbnail']);
-            
+        
+            if (isset($fw_core['source']))
+            {
+                $src = $fw_core['source'];
+                if (isset($src['name']))
+                    $source_name = pg_escape_string($src['name']);
+                if (isset($src['website']))
+                    $source_website = pg_escape_string($src['website']);
+                if (isset($src['id']))
+                    $source_id = pg_escape_string($src['id']);
+                if (isset($src['licence']))
+                    $source_licence = pg_escape_string($src['licence']);
+            }
             $new_timestamp = time();
             
-            $replace = "UPDATE $fw_core_tbl SET name='$name', category='$category', location=ST_GeogFromText('POINT($lon $lat)'), description='$description', " .
-            "label='$label', url='$url', thumbnail='$thumbnail', timestamp=$new_timestamp WHERE uuid='$uuid';";
+//             $update = "UPDATE $fw_core_tbl SET name='$name', category='$category', location=ST_GeogFromText('POINT($lon $lat)'), description='$description', " .
+//             "label='$label', url='$url', thumbnail='$thumbnail', timestamp=$new_timestamp WHERE uuid='$uuid';";
+
+            $update = "UPDATE $fw_core_tbl SET category='$category', location=ST_GeogFromText('POINT($lon $lat)'), " .
+            "thumbnail='$thumbnail', timestamp=$new_timestamp, source_name='$source_name', source_website='$source_website', " .
+            "source_id='$source_id', source_licence='$source_licence' WHERE uuid='$uuid';";
             
-            $replace_result = pg_query($replace);
-            if (!$replace_result)
+            $update_result = pg_query($update);
+            if (!$update_result)
             {
                 echo "A database error has occured!";
                 echo pg_last_error();

@@ -49,8 +49,8 @@ if (isset ($_GET['poi_id']))
         $pgcon = connectPostgreSQL($db_opts["sql_db_name"]);
         $fw_core_tbl = $db_opts['fw_core_table_name'];
         
-        $query = "SELECT uuid, name, category, description, label, url, thumbnail, st_x(location::geometry) as lon, st_y(location::geometry) as lat, st_astext(geometry) as geometry, timestamp " .
-            "FROM $fw_core_tbl WHERE uuid IN ($esc_ids)";
+        $query = "SELECT uuid, category, thumbnail, st_x(location::geometry) as lon, st_y(location::geometry) as lat, st_astext(geometry) as geometry, timestamp, " .
+            "source_name, source_website, source_id, source_licence FROM $fw_core_tbl WHERE uuid IN ($esc_ids)";
 
         $core_result = pg_query($query);
         
@@ -64,9 +64,12 @@ if (isset ($_GET['poi_id']))
         $core_json_struct = fw_core_pgsql2array($core_result, TRUE);
         
         $core_pois = $core_json_struct['pois'];
+        $fw_core_intl_tbl = $db_opts['fw_core_intl_table_name'];
         foreach ($core_pois as $core_poi_uuid => $fw_core_content)
         {
-            $data[$core_poi_uuid] = $core_pois[$core_poi_uuid];
+            $poi_data = get_fw_core_intl_properties_for_poi($pgcon, $fw_core_intl_tbl, $core_poi_uuid, $fw_core_content);
+            
+            $data[$core_poi_uuid] = $poi_data;
         }
     }
     
@@ -84,6 +87,7 @@ if (isset ($_GET['poi_id']))
         
         foreach(array_keys($data) as $uuid)
         {
+                       
 //             print $uuid;
             $comp_data = getComponentMongoDB($mongodb, $component, $uuid, $fetch_for_update);
             if ($comp_data != NULL)
@@ -91,10 +95,28 @@ if (isset ($_GET['poi_id']))
                 $data[$uuid][$component] = $comp_data;
             }
         }
-        
-    }            
+    }
     
-    $return_val = json_encode(array("pois" => $data));
+    $pois_data = array("pois" => $data);
+    
+    $get_for_update = false;
+    
+    if (isset ($_GET['get_for_update']))
+    {
+        if ($_GET['get_for_update'] == "true")
+        {
+            $get_for_update = true;
+        }
+    }
+    if (!$get_for_update)
+    {
+        $accept_lang = $_SERVER['HTTP_ACCEPT_LANGUAGE'];
+        $langs = parse_accept_language($accept_lang);  
+        filter_poi_intl_properties($pois_data, array_keys($langs));
+        
+    }
+    
+    $return_val = json_encode($pois_data);
     header("Content-type: application/json");
     header("Access-Control-Allow-Origin: *");
     echo $return_val;

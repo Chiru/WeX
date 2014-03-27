@@ -128,5 +128,28 @@ function escape_csv($csv_string)
     return $esc_csv;
 }  
 
+function parse_accept_language($accept_language_str)
+{
+    if ($accept_language_str == null or $accept_language_str == "")
+        return array();
+    $accept_language_str = str_replace(" ", "", $accept_language_str);
+    $langs = array();
+
+    $splits = explode(",", $accept_language_str);
+    foreach($splits as $split)
+    {
+        if (strpos($split, ";") == false)
+            $langs[$split] = 1;
+        else
+        {
+            $lang_q = explode(";q=", $split);
+            $langs[$lang_q[0]] = floatval($lang_q[1]);
+        }
+    }        
+    arsort($langs, SORT_NUMERIC);
+    
+//     var_dump($langs);
+    return $langs;
+}
 
 ?>

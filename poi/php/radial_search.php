@@ -52,12 +52,14 @@ if (isset ($_GET['lat']) and isset ($_GET['lon']))
     
     if (isset($common_params['categories']))
     {
-        $query = "SELECT uuid, name, category, description, label, url, thumbnail, st_x(location::geometry) as lon, st_y(location::geometry) as lat, st_astext(geometry) as geometry, timestamp " .
+        $query = "SELECT uuid, category, thumbnail, st_x(location::geometry) as lon, st_y(location::geometry) as lat, st_astext(geometry) as geometry, timestamp, ".
+        "source_name, source_website, source_id, source_licence " .
         "FROM $fw_core_tbl WHERE ST_DWithin(location, ST_GeogFromText('POINT($lon $lat)'), $radius) AND category in (" . $common_params['categories'] . ") LIMIT " . $common_params['max_results'];
     }
     
     else {
-        $query = "SELECT uuid, name, category, description, label, url, thumbnail, st_x(location::geometry) as lon, st_y(location::geometry) as lat, st_astext(geometry) as geometry, timestamp " .
+        $query = "SELECT uuid, category, thumbnail, st_x(location::geometry) as lon, st_y(location::geometry) as lat, st_astext(geometry) as geometry, timestamp, " .
+        "source_name, source_website, source_id, source_licence " .
         "FROM $fw_core_tbl WHERE ST_DWithin(location, ST_GeogFromText('POINT($lon $lat)'), $radius) LIMIT " . $common_params['max_results'];
     }
 //     echo "<br>" . $query;
@@ -78,6 +80,17 @@ if (isset ($_GET['lat']) and isset ($_GET['lon']))
     }
   
     $json_struct = fw_core_pgsql2array($core_result, $incl_fw_core);
+    
+    if ($incl_fw_core)
+    {
+        $fw_core_intl_tbl = $db_opts['fw_core_intl_table_name'];
+        foreach ($json_struct['pois'] as $core_poi_uuid => $fw_core_content)
+        {
+            $poi_data = get_fw_core_intl_properties_for_poi($pgcon, $fw_core_intl_tbl, $core_poi_uuid, $fw_core_content);
+                
+            $json_struct['pois'][$core_poi_uuid] = $poi_data;
+        }
+    }
     
     $mongodb = connectMongoDB($db_opts['mongo_db_name']);
     
@@ -140,6 +153,12 @@ if (isset ($_GET['lat']) and isset ($_GET['lon']))
             }
         }
     }
+    
+    
+    //Language filtering
+    $accept_lang = $_SERVER['HTTP_ACCEPT_LANGUAGE'];
+    $langs = parse_accept_language($accept_lang);  
+    filter_poi_intl_properties($json_struct, array_keys($langs));
     
     $return_val = json_encode($json_struct);
     header("Content-type: application/json");
