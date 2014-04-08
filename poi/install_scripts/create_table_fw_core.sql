@@ -3,17 +3,17 @@
 CREATE TABLE fw_core
 (
   uuid uuid NOT NULL,
-  name character varying(64),
   category character varying(64),
-  description character varying(512),
-  label character varying(256),
-  url text,
   location geography,
   geometry geometry,
   osm_id integer, -- OpenStreetMap ID (for POIs imported from OSM)
   thumbnail text,
-  timestamp bigint,
+  "timestamp" bigint,
   userid uuid,
+  source_name text,
+  source_website text,
+  source_licence text,
+  source_id text,
   CONSTRAINT "pkey" PRIMARY KEY (uuid)
 )
 WITH (
